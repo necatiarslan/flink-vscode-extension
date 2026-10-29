@@ -52,7 +52,7 @@ const LICENSE_API_URL = 'https://www.sairefe.com/wp-json/vscode/v1/license/valid
 // Validation frequency (7 Days)
 const VALIDATION_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 const GRACE_PERIOD_DAYS = 7;
-const PRODUCT_NAME = 'Aws Workbench';
+const PRODUCT_NAME = 'Apache Flink';
 const PRODUCT_ID = 807044;
 const PRODUCT_ID_QA = 807040;
 const OFFLINE_VARIANT_NAME = 'Offline Signed License';
@@ -219,7 +219,7 @@ async function validateLicenseOffline(context, licenseKey, enteredEmail) {
     return true;
 }
 function RegisterLicenseManagementCommands() {
-    vscode.commands.registerCommand('AwsWorkbench.ActivatePro', () => {
+    vscode.commands.registerCommand('ApacheFlink.ActivatePro', () => {
         if (Session_1.Session.Current?.IsProVersion) {
             ui.showInfoMessage('You already have an active Pro license!');
             return;
@@ -229,9 +229,9 @@ function RegisterLicenseManagementCommands() {
             buyUrl = 'https://necatiarslan.lemonsqueezy.com/checkout/buy/8289ec8d-2343-4e8a-9a03-f398e54881ad';
         }
         vscode.env.openExternal(vscode.Uri.parse(buyUrl));
-        vscode.commands.executeCommand('AwsWorkbench.EnterLicenseKey');
+        vscode.commands.executeCommand('ApacheFlink.EnterLicenseKey');
     }),
-        vscode.commands.registerCommand('AwsWorkbench.EnterLicenseKey', async () => {
+        vscode.commands.registerCommand('ApacheFlink.EnterLicenseKey', async () => {
             if (Session_1.Session.Current?.IsProVersion) {
                 ui.showInfoMessage('You already have an active Pro license!');
                 return;
@@ -241,7 +241,7 @@ function RegisterLicenseManagementCommands() {
                 Session_1.Session.Current.IsProVersion = isLicenseValid();
             }
         }),
-        vscode.commands.registerCommand('AwsWorkbench.ResetLicenseKey', async () => {
+        vscode.commands.registerCommand('ApacheFlink.ResetLicenseKey', async () => {
             await clearLicense();
             ui.showInfoMessage('License key has been reset. Please enter a new license key to activate Pro features.');
             if (Session_1.Session.Current) {

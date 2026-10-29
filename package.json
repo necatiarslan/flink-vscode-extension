@@ -24,497 +24,462 @@
   "contributes": {
     "commands": [
       {
-        "command": "AwsWorkbench.Add",
+        "command": "ApacheFlink.Add",
         "title": "Add",
         "icon": "$(add)"
       },
       {
-        "command": "AwsWorkbench.Remove",
+        "command": "ApacheFlink.Remove",
         "title": "Remove",
         "icon": "$(trash)"
       },
       {
-        "command": "AwsWorkbench.Refresh",
+        "command": "ApacheFlink.Refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "AwsWorkbench.Filter",
+        "command": "ApacheFlink.Filter",
         "title": "Filter",
         "icon": "$(filter)"
       },
       {
-        "command": "AwsWorkbench.ShowOnlyFavorite",
+        "command": "ApacheFlink.ShowOnlyFavorite",
         "title": "Show Only Favorite",
         "icon": "$(bookmark)"
       },
       {
-        "command": "AwsWorkbench.ShowHidden",
+        "command": "ApacheFlink.ShowHidden",
         "title": "Show Hidden",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "AwsWorkbench.Hide",
+        "command": "ApacheFlink.Hide",
         "title": "Hide"
       },
       {
-        "command": "AwsWorkbench.UnHide",
+        "command": "ApacheFlink.UnHide",
         "title": "UnHide"
       },
       {
-        "command": "AwsWorkbench.AddFav",
+        "command": "ApacheFlink.AddFav",
         "title": "Fav",
         "icon": "$(star)"
       },
       {
-        "command": "AwsWorkbench.RemoveFav",
+        "command": "ApacheFlink.RemoveFav",
         "title": "UnFav",
         "icon": "$(star-empty)"
       },
       {
-        "command": "AwsWorkbench.ShowOnlyInThisProfile",
+        "command": "ApacheFlink.ShowOnlyInThisProfile",
         "title": "Show Only In This Profile"
       },
       {
-        "command": "AwsWorkbench.ShowInAnyProfile",
+        "command": "ApacheFlink.ShowInAnyProfile",
         "title": "Show In Any Profile"
       },
       {
-        "command": "AwsWorkbench.ShowOnlyInThisWorkspace",
+        "command": "ApacheFlink.ShowOnlyInThisWorkspace",
         "title": "Show Only In This Workspace"
       },
       {
-        "command": "AwsWorkbench.ShowInAnyWorkspace",
+        "command": "ApacheFlink.ShowInAnyWorkspace",
         "title": "Show In Any Workspace"
       },
       {
-        "command": "AwsWorkbench.NodeAdd",
+        "command": "ApacheFlink.NodeAdd",
         "title": "Add",
         "icon": "$(add)"
       },
       {
-        "command": "AwsWorkbench.NodeRemove",
+        "command": "ApacheFlink.NodeRemove",
         "title": "Remove",
         "icon": "$(trash)"
       },
       {
-        "command": "AwsWorkbench.NodeRefresh",
+        "command": "ApacheFlink.NodeRefresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "AwsWorkbench.NodeView",
+        "command": "ApacheFlink.NodeView",
         "title": "View",
         "icon": "$(eye)"
       },
       {
-        "command": "AwsWorkbench.NodeEdit",
+        "command": "ApacheFlink.NodeEdit",
         "title": "Edit",
         "icon": "$(pencil)"
       },
       {
-        "command": "AwsWorkbench.NodeRun",
+        "command": "ApacheFlink.NodeRun",
         "title": "Run",
         "icon": "$(play)"
       },
       {
-        "command": "AwsWorkbench.NodeStop",
+        "command": "ApacheFlink.NodeStop",
         "title": "Stop",
         "icon": "$(stop)"
       },
       {
-        "command": "AwsWorkbench.NodeOpen",
+        "command": "ApacheFlink.NodeOpen",
         "title": "Open",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "AwsWorkbench.NodeInfo",
+        "command": "ApacheFlink.NodeInfo",
         "title": "Info",
         "icon": "$(info)"
       },
       {
-        "command": "AwsWorkbench.NodeCopy",
+        "command": "ApacheFlink.NodeCopy",
         "title": "Copy",
         "icon": "$(copy)"
       },
       {
-        "command": "AwsWorkbench.NodeAlias",
+        "command": "ApacheFlink.NodeAlias",
         "title": "Alias",
         "icon": "$(case-sensitive)"
       },
       {
-        "command": "AwsWorkbench.SetTooltip",
+        "command": "ApacheFlink.SetTooltip",
         "title": "Set Tooltip",
         "icon": "$(comment)"
       },
       {
-        "command": "AwsWorkbench.SetColor",
+        "command": "ApacheFlink.SetColor",
         "title": "Set Color",
         "icon": "$(symbol-color)"
       },
       {
-        "command": "AwsWorkbench.MoveUp",
+        "command": "ApacheFlink.MoveUp",
         "title": "Move Up",
         "icon": "$(arrow-up)"
       },
       {
-        "command": "AwsWorkbench.MoveDown",
+        "command": "ApacheFlink.MoveDown",
         "title": "Move Down",
         "icon": "$(arrow-down)"
       },
       {
-        "command": "AwsWorkbench.MoveToFolder",
+        "command": "ApacheFlink.MoveToFolder",
         "title": "Move to Folder",
         "icon": "$(folder)"
       },
       {
-        "command": "AwsWorkbench.SelectAwsProfile",
+        "command": "ApacheFlink.SelectAwsProfile",
         "title": "Select AWS Profile",
         "icon": "$(account)"
       },
       {
-        "command": "AwsWorkbench.SetAwsRegion",
+        "command": "ApacheFlink.SetAwsRegion",
         "title": "Set AWS Region",
         "icon": "$(location)"
       },
       {
-        "command": "AwsWorkbench.UpdateAwsEndPoint",
+        "command": "ApacheFlink.UpdateAwsEndPoint",
         "title": "Update AWS EndPoint"
       },
       {
-        "command": "AwsWorkbench.TestAwsConnection",
+        "command": "ApacheFlink.TestAwsConnection",
         "title": "Test AWS Connection",
         "icon": "$(plug)"
       },
       {
-        "command": "AwsWorkbench.RefreshCredentials",
+        "command": "ApacheFlink.RefreshCredentials",
         "title": "Refresh AWS Credentials",
         "icon": "$(refresh)"
       },
       {
-        "command": "AwsWorkbench.ConnectionRefreshCredentials",
+        "command": "ApacheFlink.ConnectionRefreshCredentials",
         "title": "Refresh Credentials",
         "icon": "$(refresh)"
       },
       {
-        "command": "AwsWorkbench.ConnectionTestAwsConnection",
+        "command": "ApacheFlink.ConnectionTestAwsConnection",
         "title": "Test Aws Connection",
         "icon": "$(plug)"
       },
       {
-        "command": "AwsWorkbench.ConnectionChangeProfile",
+        "command": "ApacheFlink.ConnectionChangeProfile",
         "title": "Change Profile",
         "icon": "$(settings-gear)"
       },
       {
-        "command": "AwsWorkbench.ConnectionRefreshView",
+        "command": "ApacheFlink.ConnectionRefreshView",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "AwsWorkbench.Donate",
+        "command": "ApacheFlink.Donate",
         "title": "Donate",
         "icon": "$(heart)"
       },
       {
-        "command": "AwsWorkbench.BugAndNewFeatureRequest",
+        "command": "ApacheFlink.BugAndNewFeatureRequest",
         "title": "Bug and New Feature Request",
         "icon": "$(bug)"
       },
       {
-        "command": "AwsWorkbench.ExportConfig",
+        "command": "ApacheFlink.ExportConfig",
         "title": "Export Config",
         "icon": "$(arrow-down)"
       },
       {
-        "command": "AwsWorkbench.ImportConfig",
+        "command": "ApacheFlink.ImportConfig",
         "title": "Import Config",
         "icon": "$(arrow-up)"
-      },
-      {
-        "command": "AwsWorkbench.ActivatePro",
-        "title": "Activate Pro"
-      },
-      {
-        "command": "AwsWorkbench.EnterLicenseKey",
-        "title": "Enter License Key"
-      },
-      {
-        "command": "AwsWorkbench.ResetLicenseKey",
-        "title": "Reset License Key"
       }
     ],
     "submenus": [
       {
-        "id": "AwsWorkbench.Connection",
+        "id": "ApacheFlink.Connection",
         "label": "Connection"
-      },
-      {
-        "id": "AwsWorkbench.ProLicense",
-        "label": "Pro License"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "AwsWorkbench.Add",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.Add",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "command": "AwsWorkbench.Filter",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.Filter",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "command": "AwsWorkbench.ShowOnlyFavorite",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.ShowOnlyFavorite",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "command": "AwsWorkbench.ShowHidden",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.ShowHidden",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "command": "AwsWorkbench.SelectAwsProfile",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.SelectAwsProfile",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "command": "AwsWorkbench.Refresh",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.Refresh",
+          "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
         {
-          "submenu": "AwsWorkbench.Connection",
-          "when": "view == AwsWorkbenchView",
+          "submenu": "ApacheFlink.Connection",
+          "when": "view == ApacheFlinkView",
           "group": "other_1"
         },
         {
-          "submenu": "AwsWorkbench.ProLicense",
-          "when": "view == AwsWorkbenchView",
-          "group": "other_2"
-        },
-        {
-          "command": "AwsWorkbench.Donate",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.Donate",
+          "when": "view == ApacheFlinkView",
           "group": "other_3"
         },
         {
-          "command": "AwsWorkbench.BugAndNewFeatureRequest",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.BugAndNewFeatureRequest",
+          "when": "view == ApacheFlinkView",
           "group": "other_3"
         },
         {
-          "command": "AwsWorkbench.ExportConfig",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.ExportConfig",
+          "when": "view == ApacheFlinkView",
           "group": "other_4"
         },
         {
-          "command": "AwsWorkbench.ImportConfig",
-          "when": "view == AwsWorkbenchView",
+          "command": "ApacheFlink.ImportConfig",
+          "when": "view == ApacheFlinkView",
           "group": "other_4"
         },
         {
-          "command": "AwsWorkbench.ConnectionRefreshView",
-          "when": "view == AwsWorkbenchConnectionView",
+          "command": "ApacheFlink.ConnectionRefreshView",
+          "when": "view == ApacheFlinkConnectionView",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "AwsWorkbench.AddFav",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#AddFav#/",
+          "command": "ApacheFlink.AddFav",
+          "when": "view == ApacheFlinkView && viewItem =~ /#AddFav#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.RemoveFav",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#RemoveFav#/",
+          "command": "ApacheFlink.RemoveFav",
+          "when": "view == ApacheFlinkView && viewItem =~ /#RemoveFav#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.Hide",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#Hide#/",
+          "command": "ApacheFlink.Hide",
+          "when": "view == ApacheFlinkView && viewItem =~ /#Hide#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.UnHide",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#UnHide#/",
+          "command": "ApacheFlink.UnHide",
+          "when": "view == ApacheFlinkView && viewItem =~ /#UnHide#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.ShowOnlyInThisProfile",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#ShowOnlyInThisProfile#/",
+          "command": "ApacheFlink.ShowOnlyInThisProfile",
+          "when": "view == ApacheFlinkView && viewItem =~ /#ShowOnlyInThisProfile#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.ShowInAnyProfile",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#ShowInAnyProfile#/",
+          "command": "ApacheFlink.ShowInAnyProfile",
+          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyProfile#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.ShowOnlyInThisWorkspace",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#ShowOnlyInThisWorkspace#/",
+          "command": "ApacheFlink.ShowOnlyInThisWorkspace",
+          "when": "view == ApacheFlinkView && viewItem =~ /#ShowOnlyInThisWorkspace#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.ShowInAnyWorkspace",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#ShowInAnyWorkspace#/",
+          "command": "ApacheFlink.ShowInAnyWorkspace",
+          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyWorkspace#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.ShowInAnyProfile",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#ShowInAnyProfile#/",
+          "command": "ApacheFlink.ShowInAnyProfile",
+          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyProfile#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.NodeAlias",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeAlias#/",
+          "command": "ApacheFlink.NodeAlias",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeAlias#/",
           "group": "Filter"
         },
         {
-          "command": "AwsWorkbench.SetTooltip",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#SetTooltip#/",
+          "command": "ApacheFlink.SetTooltip",
+          "when": "view == ApacheFlinkView && viewItem =~ /#SetTooltip#/",
           "group": "Customize"
         },
         {
-          "command": "AwsWorkbench.SetColor",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#SetColor#/",
+          "command": "ApacheFlink.SetColor",
+          "when": "view == ApacheFlinkView && viewItem =~ /#SetColor#/",
           "group": "Customize"
         },
         {
-          "command": "AwsWorkbench.MoveUp",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#MoveUp#/",
+          "command": "ApacheFlink.MoveUp",
+          "when": "view == ApacheFlinkView && viewItem =~ /#MoveUp#/",
           "group": "Order"
         },
         {
-          "command": "AwsWorkbench.MoveDown",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#MoveDown#/",
+          "command": "ApacheFlink.MoveDown",
+          "when": "view == ApacheFlinkView && viewItem =~ /#MoveDown#/",
           "group": "Order"
         },
         {
-          "command": "AwsWorkbench.MoveToFolder",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeMove#/",
+          "command": "ApacheFlink.MoveToFolder",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeMove#/",
           "group": "Order"
         },
         {
-          "command": "AwsWorkbench.NodeAdd",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeAdd#/",
+          "command": "ApacheFlink.NodeAdd",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeAdd#/",
           "group": "inline@1"
         },
         {
-          "command": "AwsWorkbench.NodeRemove",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeRemove#/",
+          "command": "ApacheFlink.NodeRemove",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRemove#/",
           "group": "inline@2"
         },
         {
-          "command": "AwsWorkbench.NodeRefresh",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeRefresh#/",
+          "command": "ApacheFlink.NodeRefresh",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRefresh#/",
           "group": "inline@3"
         },
         {
-          "command": "AwsWorkbench.NodeView",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeView#/",
+          "command": "ApacheFlink.NodeView",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeView#/",
           "group": "inline@4"
         },
         {
-          "command": "AwsWorkbench.NodeEdit",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeEdit#/",
+          "command": "ApacheFlink.NodeEdit",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeEdit#/",
           "group": "inline@5"
         },
         {
-          "command": "AwsWorkbench.NodeRun",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeRun#/",
+          "command": "ApacheFlink.NodeRun",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRun#/",
           "group": "inline@6"
         },
         {
-          "command": "AwsWorkbench.NodeStop",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeStop#/",
+          "command": "ApacheFlink.NodeStop",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeStop#/",
           "group": "inline@7"
         },
         {
-          "command": "AwsWorkbench.NodeOpen",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeOpen#/",
+          "command": "ApacheFlink.NodeOpen",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeOpen#/",
           "group": "inline@8"
         },
         {
-          "command": "AwsWorkbench.NodeInfo",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeInfo#/",
+          "command": "ApacheFlink.NodeInfo",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeInfo#/",
           "group": "inline@9"
         },
         {
-          "command": "AwsWorkbench.NodeCopy",
-          "when": "view == AwsWorkbenchView && viewItem =~ /#NodeCopy#/",
+          "command": "ApacheFlink.NodeCopy",
+          "when": "view == ApacheFlinkView && viewItem =~ /#NodeCopy#/",
           "group": "inline@10"
         },
         {
-          "command": "AwsWorkbench.ConnectionRefreshCredentials",
-          "when": "view == AwsWorkbenchConnectionView && viewItem == ConnectionRefreshCredentialsNode",
+          "command": "ApacheFlink.ConnectionRefreshCredentials",
+          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionRefreshCredentialsNode",
           "group": "inline@1"
         },
         {
-          "command": "AwsWorkbench.ConnectionTestAwsConnection",
-          "when": "view == AwsWorkbenchConnectionView && viewItem == ConnectionTestAwsNode",
+          "command": "ApacheFlink.ConnectionTestAwsConnection",
+          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionTestAwsNode",
           "group": "inline@2"
         },
         {
-          "command": "AwsWorkbench.ConnectionChangeProfile",
-          "when": "view == AwsWorkbenchConnectionView && viewItem == ConnectionChangeProfileNode",
+          "command": "ApacheFlink.ConnectionChangeProfile",
+          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionChangeProfileNode",
           "group": "inline@3"
         }
       ],
-      "AwsWorkbench.Connection": [
+      "ApacheFlink.Connection": [
         {
-          "command": "AwsWorkbench.TestAwsConnection",
+          "command": "ApacheFlink.TestAwsConnection",
           "group": "1_connection"
         },
         {
-          "command": "AwsWorkbench.RefreshCredentials",
+          "command": "ApacheFlink.RefreshCredentials",
           "group": "1_connection"
         },
         {
-          "command": "AwsWorkbench.UpdateAwsEndPoint",
+          "command": "ApacheFlink.UpdateAwsEndPoint",
           "group": "2_settings"
         },
         {
-          "command": "AwsWorkbench.SetAwsRegion",
+          "command": "ApacheFlink.SetAwsRegion",
           "group": "2_settings"
-        }
-      ],
-      "AwsWorkbench.ProLicense": [
-        {
-          "command": "AwsWorkbench.EnterLicenseKey",
-          "group": "1_license"
-        },
-        {
-          "command": "AwsWorkbench.ResetLicenseKey",
-          "group": "1_license"
-        },
-        {
-          "command": "AwsWorkbench.ActivatePro",
-          "group": "1_license"
         }
       ]
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "AwsWorkbench",
-          "title": "Aws Workbench",
+          "id": "ApacheFlink",
+          "title": "Apache Flink",
           "icon": "media/flink-vscode-extension-logo.png"
         }
       ]
     },
     "views": {
-      "AwsWorkbench": [
+      "ApacheFlink": [
         {
-          "id": "AwsWorkbenchView",
-          "name": "Aws Workbench",
+          "id": "ApacheFlinkView",
+          "name": "Apache Flink",
           "icon": "media/flink-vscode-extension-logo.png"
         },
         {
-          "id": "AwsWorkbenchConnectionView",
+          "id": "ApacheFlinkConnectionView",
           "name": "Aws Connection",
           "icon": "media/flink-vscode-extension-logo.png"
         }
@@ -522,8 +487,8 @@
     },
     "viewsWelcome": [
       {
-        "view": "AwsWorkbenchView",
-        "contents": "Please click [+] to add Aws Resources. \n [Add](command:AwsWorkbench.Add) \n\n\n\n To Access Aws, you need to configure local Aws Credentials. \n For more detail on Aws Credentials, see the [AWS CLI Credentials Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). \n For a video guide, see this [YouTube Tutorial on AWS Credentials](https://www.youtube.com/watch?v=SON8sY1iOBU). \n\n [Test Aws Connection](command:AwsWorkbench.TestAwsConnection) \n\n [Update Aws EndPoint](command:AwsWorkbench.UpdateAwsEndPoint)"
+        "view": "ApacheFlinkView",
+        "contents": "Please click [+] to add Aws Resources. \n [Add](command:ApacheFlink.Add) \n\n\n\n To Access Aws, you need to configure local Aws Credentials. \n For more detail on Aws Credentials, see the [AWS CLI Credentials Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). \n For a video guide, see this [YouTube Tutorial on AWS Credentials](https://www.youtube.com/watch?v=SON8sY1iOBU). \n\n [Test Aws Connection](command:ApacheFlink.TestAwsConnection) \n\n [Update Aws EndPoint](command:ApacheFlink.UpdateAwsEndPoint)"
       }
     ],
     "icons": {
@@ -591,8 +556,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "node ./out/test/runTest.js",
-    "license:generate-offline": "node ./offline_license/generate-offline-license.js"
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/archiver": "^8.0.0",

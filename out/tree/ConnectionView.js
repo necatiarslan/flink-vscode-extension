@@ -47,16 +47,16 @@ class ConnectionView {
     constructor(context) {
         ConnectionView.Current = this;
         this.treeDataProvider = new ConnectionTreeProvider_1.ConnectionTreeProvider();
-        this.view = vscode.window.createTreeView('AwsWorkbenchConnectionView', {
+        this.view = vscode.window.createTreeView('ApacheFlinkConnectionView', {
             treeDataProvider: this.treeDataProvider,
             showCollapseAll: false
         });
         context.subscriptions.push(this.view);
         context.subscriptions.push(this.treeDataProvider);
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionRefreshView', () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionRefreshView', () => {
             this.Refresh();
         }));
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionRefreshCredentials', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionRefreshCredentials', async () => {
             try {
                 await Session_1.Session.Current.RefreshCredentials();
                 ui.showInfoMessage('AWS credentials refreshed.');
@@ -66,7 +66,7 @@ class ConnectionView {
                 ui.showErrorMessage('Failed to refresh AWS credentials', error);
             }
         }));
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionTestAwsConnection', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionTestAwsConnection', async () => {
             try {
                 await Session_1.Session.Current.TestAwsConnection();
                 this.Refresh();
@@ -75,7 +75,7 @@ class ConnectionView {
                 ui.showErrorMessage('Failed to test AWS connection', error);
             }
         }));
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionChangeProfile', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionChangeProfile', async () => {
             await Session_1.Session.Current.SetAwsProfile();
             NodeBase_1.NodeBase.RootNodes.forEach(node => {
                 node.SetVisible();

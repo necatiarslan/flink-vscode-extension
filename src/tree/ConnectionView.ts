@@ -14,7 +14,7 @@ export class ConnectionView {
     constructor(context: vscode.ExtensionContext) {
         ConnectionView.Current = this;
         this.treeDataProvider = new ConnectionTreeProvider();
-        this.view = vscode.window.createTreeView('AwsWorkbenchConnectionView', {
+        this.view = vscode.window.createTreeView('ApacheFlinkConnectionView', {
             treeDataProvider: this.treeDataProvider,
             showCollapseAll: false
         });
@@ -22,11 +22,11 @@ export class ConnectionView {
         context.subscriptions.push(this.view);
         context.subscriptions.push(this.treeDataProvider);
 
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionRefreshView', () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionRefreshView', () => {
             this.Refresh();
         }));
 
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionRefreshCredentials', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionRefreshCredentials', async () => {
             try {
                 await Session.Current.RefreshCredentials();
                 ui.showInfoMessage('AWS credentials refreshed.');
@@ -36,7 +36,7 @@ export class ConnectionView {
             }
         }));
 
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionTestAwsConnection', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionTestAwsConnection', async () => {
             try {
                 await Session.Current.TestAwsConnection();
                 this.Refresh();
@@ -45,7 +45,7 @@ export class ConnectionView {
             }
         }));
 
-        context.subscriptions.push(vscode.commands.registerCommand('AwsWorkbench.ConnectionChangeProfile', async () => {
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.ConnectionChangeProfile', async () => {
             await Session.Current.SetAwsProfile();
             NodeBase.RootNodes.forEach(node => {
                 node.SetVisible();

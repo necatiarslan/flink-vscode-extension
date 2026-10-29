@@ -5,23 +5,20 @@ import { TreeView } from './tree/TreeView';
 import { ConnectionView } from './tree/ConnectionView';
 import { ServiceHub } from './tree/ServiceHub';
 import { TreeState } from './tree/TreeState';
-import { initializeLicense, isLicenseValid, RegisterLicenseManagementCommands } from "./common/License";
 
 
 /**
- * Activates the AWS Workbench extension.
+ * Activates the Apache Flink extension.
  * This is the entry point for the extension.
  */
 export function activate(context: vscode.ExtensionContext): void {
-    ui.logToOutput('Activating AWS Workbench...');
+    ui.logToOutput('Activating Apache Flink...');
 
     try {
-        initializeLicense(context);
         const session = new Session(context); // Initialize session management
-        session.IsProVersion = isLicenseValid();
         new ServiceHub(context);    // Initialize service hub
         
-        // 1. Initialize the Unified "Aws Workbench" Tree Provider
+        // 1. Initialize the Unified "Apache Flink" Tree Provider
         new TreeView(context);
 
         // 1.1 Initialize Aws Connection Tree Provider
@@ -33,14 +30,11 @@ export function activate(context: vscode.ExtensionContext): void {
         // 3. Refresh tree to display loaded nodes
         TreeView.Current.Refresh();
 
-		// 4. Register commands after TreeView is ready
-		RegisterLicenseManagementCommands();
-		
 
-        ui.logToOutput('AWS Workbench activated successfully.');
+        ui.logToOutput('Apache Flink activated successfully.');
     } catch (error) {
-        ui.logToOutput('Fatal error activating AWS Workbench:', error as Error);
-        ui.showInfoMessage('AWS Workbench failed to activate. Check debug console for details.');
+        ui.logToOutput('Fatal error activating Apache Flink:', error as Error);
+        ui.showInfoMessage('Apache Flink failed to activate. Check debug console for details.');
     }
 }
 

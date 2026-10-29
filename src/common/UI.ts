@@ -20,10 +20,10 @@ export function getUri(webview: vscode.Webview, extensionUri: vscode.Uri, pathLi
   return webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
 }
 
-export function showOutputMessage(message: any, popupMessage: string = "Results are printed to OUTPUT / AwsWorkbench-Extension", clearPrevMessages:boolean=true): void {
+export function showOutputMessage(message: any, popupMessage: string = "Results are printed to OUTPUT / ApacheFlink-Extension", clearPrevMessages:boolean=true): void {
 
   if (!outputChannel) {
-    outputChannel = vscode.window.createOutputChannel("AwsWorkbench-Extension");
+    outputChannel = vscode.window.createOutputChannel("ApacheFlink-Extension");
   }
 
   if(clearPrevMessages)
@@ -49,7 +49,7 @@ export function logToOutput(message: any, error?: Error): void {
   let now = new Date().toLocaleString();
 
   if (!logsOutputChannel) {
-    logsOutputChannel = vscode.window.createOutputChannel("AwsWorkbench-Log");
+    logsOutputChannel = vscode.window.createOutputChannel("ApacheFlink-Log");
   }
 
   if (typeof message === "object") {

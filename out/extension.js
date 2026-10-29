@@ -41,19 +41,16 @@ const TreeView_1 = require("./tree/TreeView");
 const ConnectionView_1 = require("./tree/ConnectionView");
 const ServiceHub_1 = require("./tree/ServiceHub");
 const TreeState_1 = require("./tree/TreeState");
-const License_1 = require("./common/License");
 /**
- * Activates the AWS Workbench extension.
+ * Activates the Apache Flink extension.
  * This is the entry point for the extension.
  */
 function activate(context) {
-    ui.logToOutput('Activating AWS Workbench...');
+    ui.logToOutput('Activating Apache Flink...');
     try {
-        (0, License_1.initializeLicense)(context);
         const session = new Session_1.Session(context); // Initialize session management
-        session.IsProVersion = (0, License_1.isLicenseValid)();
         new ServiceHub_1.ServiceHub(context); // Initialize service hub
-        // 1. Initialize the Unified "Aws Workbench" Tree Provider
+        // 1. Initialize the Unified "Apache Flink" Tree Provider
         new TreeView_1.TreeView(context);
         // 1.1 Initialize Aws Connection Tree Provider
         new ConnectionView_1.ConnectionView(context);
@@ -61,13 +58,11 @@ function activate(context) {
         TreeState_1.TreeState.load();
         // 3. Refresh tree to display loaded nodes
         TreeView_1.TreeView.Current.Refresh();
-        // 4. Register commands after TreeView is ready
-        (0, License_1.RegisterLicenseManagementCommands)();
-        ui.logToOutput('AWS Workbench activated successfully.');
+        ui.logToOutput('Apache Flink activated successfully.');
     }
     catch (error) {
-        ui.logToOutput('Fatal error activating AWS Workbench:', error);
-        ui.showInfoMessage('AWS Workbench failed to activate. Check debug console for details.');
+        ui.logToOutput('Fatal error activating Apache Flink:', error);
+        ui.showInfoMessage('Apache Flink failed to activate. Check debug console for details.');
     }
 }
 function deactivate() {

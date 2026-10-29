@@ -1,32 +1,13 @@
 import * as vscode from 'vscode';
 import { FileSystemService } from "../filesystem/FileSystemService";
-import { S3Service } from "../s3/S3Service";
-import { CloudWatchLogService } from '../cloudwatch-logs/CloudWatchLogService';
-import { LambdaService } from '../lambda/LambdaService';
 import { VscodeService } from '../vscode/VscodeService';
-import { StepFunctionsService } from '../step-functions/StepFunctionsService';
-import { GlueService } from '../glue/GlueService';
-import { DynamoDBService } from '../dynamodb/DynamoDBService';
-import { SNSService } from '../sns/SNSService';
-import { SQSService } from '../sqs/SQSService';
-import { IamService } from '../iam/IamService';
-import { EmrService } from '../emr/EmrService';
+
 
 export class ServiceHub {
     public static Current: ServiceHub;
     public Context: vscode.ExtensionContext;
     public FileSystemService: FileSystemService = new FileSystemService();
-    public S3Service: S3Service = new S3Service();
-    public CloudWatchLogService: CloudWatchLogService = new CloudWatchLogService();
-    public LambdaService: LambdaService = new LambdaService();
     public VscodeService: VscodeService = new VscodeService();
-    public StepFunctionsService: StepFunctionsService = new StepFunctionsService();
-    public GlueService: GlueService = new GlueService();
-    public DynamoDBService: DynamoDBService = new DynamoDBService();
-    public SNSService: SNSService = new SNSService();
-    public SQSService: SQSService = new SQSService();
-    public IamService: IamService = new IamService();
-    public EmrService: EmrService = new EmrService();
     
     public constructor(context: vscode.ExtensionContext) {
         this.Context = context;

@@ -71,9 +71,9 @@ function withProgress(task) {
 function getUri(webview, extensionUri, pathList) {
     return webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
 }
-function showOutputMessage(message, popupMessage = "Results are printed to OUTPUT / AwsWorkbench-Extension", clearPrevMessages = true) {
+function showOutputMessage(message, popupMessage = "Results are printed to OUTPUT / ApacheFlink-Extension", clearPrevMessages = true) {
     if (!outputChannel) {
-        outputChannel = vscode.window.createOutputChannel("AwsWorkbench-Extension");
+        outputChannel = vscode.window.createOutputChannel("ApacheFlink-Extension");
     }
     if (clearPrevMessages) {
         outputChannel.clear();
@@ -92,7 +92,7 @@ function showOutputMessage(message, popupMessage = "Results are printed to OUTPU
 function logToOutput(message, error) {
     let now = new Date().toLocaleString();
     if (!logsOutputChannel) {
-        logsOutputChannel = vscode.window.createOutputChannel("AwsWorkbench-Log");
+        logsOutputChannel = vscode.window.createOutputChannel("ApacheFlink-Log");
     }
     if (typeof message === "object") {
         logsOutputChannel.appendLine("[" + now + "] " + JSON.stringify(message, null, 4));

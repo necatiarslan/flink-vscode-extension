@@ -51,7 +51,7 @@ class TreeView {
         TreeView.Current = this;
         this.context = context;
         this.treeDataProvider = new TreeProvider_1.TreeProvider();
-        this.view = vscode.window.createTreeView('AwsWorkbenchView', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
+        this.view = vscode.window.createTreeView('ApacheFlinkView', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
         context.subscriptions.push(this.view);
         this.RegisterCommands();
         this.view.onDidChangeSelection(e => { if (e.selection.length > 0) {
@@ -61,121 +61,121 @@ class TreeView {
         this.view.onDidCollapseElement(e => { this.NodeCollapse(e.element); }, null, context.subscriptions);
     }
     RegisterCommands() {
-        vscode.commands.registerCommand('AwsWorkbench.Refresh', () => {
+        vscode.commands.registerCommand('ApacheFlink.Refresh', () => {
             this.Refresh();
         });
-        vscode.commands.registerCommand('AwsWorkbench.Filter', () => {
+        vscode.commands.registerCommand('ApacheFlink.Filter', () => {
             this.Filter();
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowOnlyFavorite', () => {
+        vscode.commands.registerCommand('ApacheFlink.ShowOnlyFavorite', () => {
             this.ShowOnlyFavorite();
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowHidden', () => {
+        vscode.commands.registerCommand('ApacheFlink.ShowHidden', () => {
             this.ShowHidden();
         });
-        vscode.commands.registerCommand('AwsWorkbench.SelectAwsProfile', () => {
+        vscode.commands.registerCommand('ApacheFlink.SelectAwsProfile', () => {
             this.SelectAwsProfile();
         });
-        vscode.commands.registerCommand('AwsWorkbench.TestAwsConnection', () => {
+        vscode.commands.registerCommand('ApacheFlink.TestAwsConnection', () => {
             this.TestAwsConnection();
         });
-        vscode.commands.registerCommand('AwsWorkbench.RefreshCredentials', () => {
+        vscode.commands.registerCommand('ApacheFlink.RefreshCredentials', () => {
             this.RefreshCredentials();
         });
-        vscode.commands.registerCommand('AwsWorkbench.SetAwsRegion', () => {
+        vscode.commands.registerCommand('ApacheFlink.SetAwsRegion', () => {
             this.SetAwsRegion();
         });
-        vscode.commands.registerCommand('AwsWorkbench.UpdateAwsEndPoint', () => {
+        vscode.commands.registerCommand('ApacheFlink.UpdateAwsEndPoint', () => {
             this.UpdateAwsEndPoint();
         });
-        vscode.commands.registerCommand('AwsWorkbench.Hide', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.Hide', (node) => {
             this.Hide(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.UnHide', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.UnHide', (node) => {
             this.UnHide(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.AddFav', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.AddFav', (node) => {
             this.AddFav(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.RemoveFav', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.RemoveFav', (node) => {
             this.RemoveFav(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowOnlyInThisProfile', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.ShowOnlyInThisProfile', (node) => {
             this.ShowOnlyInThisProfile(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowInAnyProfile', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.ShowInAnyProfile', (node) => {
             this.ShowInAnyProfile(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowOnlyInThisWorkspace', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.ShowOnlyInThisWorkspace', (node) => {
             this.ShowOnlyInThisWorkspace(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.ShowInAnyWorkspace', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.ShowInAnyWorkspace', (node) => {
             this.ShowInAnyWorkspace(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeAdd', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeAdd', (node) => {
             this.NodeAdd(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeRemove', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeRemove', (node) => {
             this.NodeRemove(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeRefresh', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeRefresh', (node) => {
             this.NodeRefresh(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeView', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeView', (node) => {
             this.NodeView(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeEdit', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeEdit', (node) => {
             this.NodeEdit(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeRun', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeRun', (node) => {
             this.NodeRun(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeStop', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeStop', (node) => {
             this.NodeStop(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeOpen', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeOpen', (node) => {
             this.NodeOpen(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeInfo', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeInfo', (node) => {
             this.NodeInfo(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeCopy', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeCopy', (node) => {
             this.NodeCopy(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.NodeAlias', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.NodeAlias', (node) => {
             this.NodeAlias(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.SetTooltip', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.SetTooltip', (node) => {
             this.SetTooltip(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.SetColor', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.SetColor', (node) => {
             this.SetColor(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.MoveUp', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.MoveUp', (node) => {
             this.MoveUp(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.MoveDown', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.MoveDown', (node) => {
             this.MoveDown(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.MoveToFolder', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.MoveToFolder', (node) => {
             this.MoveToFolder(node);
         });
-        vscode.commands.registerCommand('AwsWorkbench.BugAndNewFeatureRequest', () => {
+        vscode.commands.registerCommand('ApacheFlink.BugAndNewFeatureRequest', () => {
             this.BugAndNewFeatureRequest();
         });
-        vscode.commands.registerCommand('AwsWorkbench.Donate', () => {
+        vscode.commands.registerCommand('ApacheFlink.Donate', () => {
             this.Donate();
         });
-        vscode.commands.registerCommand('AwsWorkbench.ExportConfig', () => {
+        vscode.commands.registerCommand('ApacheFlink.ExportConfig', () => {
             this.ExportConfig();
         });
-        vscode.commands.registerCommand('AwsWorkbench.ImportConfig', () => {
+        vscode.commands.registerCommand('ApacheFlink.ImportConfig', () => {
             this.ImportConfig();
         });
-        vscode.commands.registerCommand('AwsWorkbench.Add', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.Add', (node) => {
             this.Add(undefined);
         });
-        vscode.commands.registerCommand('AwsWorkbench.Remove', (node) => {
+        vscode.commands.registerCommand('ApacheFlink.Remove', (node) => {
             this.Remove(node);
         });
     }
@@ -218,8 +218,8 @@ class TreeView {
         const restrictedNodeCount = this.CountRestrictedNodes(NodeBase_1.NodeBase.RootNodes);
         if (restrictedNodeCount >= TreeView.FREE_NODE_LIMIT) {
             ui.showWarningMessage("Free version can add up to 5 nodes. Upgrade to Pro version to add unlimited nodes.");
-            // call AwsWorkbench.ProUpgrade() to show upgrade prompt
-            vscode.commands.executeCommand('AwsWorkbench.ActivatePro');
+            // call ApacheFlink.ProUpgrade() to show upgrade prompt
+            vscode.commands.executeCommand('ApacheFlink.ActivatePro');
             return false;
         }
         return true;
@@ -273,41 +273,8 @@ class TreeView {
             case "Bash File":
                 await ServiceHub_1.ServiceHub.Current.FileSystemService.Add(node, "Bash File");
                 break;
-            case "S3 Bucket":
-                await ServiceHub_1.ServiceHub.Current.S3Service.Add(node);
-                break;
-            case "CloudWatch Log Group":
-                await ServiceHub_1.ServiceHub.Current.CloudWatchLogService.Add(node);
-                break;
-            case "Lambda Function":
-                await ServiceHub_1.ServiceHub.Current.LambdaService.Add(node);
-                break;
-            case "Step Function":
-                await ServiceHub_1.ServiceHub.Current.StepFunctionsService.Add(node);
-                break;
-            case "Glue Job":
-                await ServiceHub_1.ServiceHub.Current.GlueService.Add(node);
-                break;
-            case "DynamoDB Table":
-                await ServiceHub_1.ServiceHub.Current.DynamoDBService.Add(node);
-                break;
-            case "Sns Topic":
-                await ServiceHub_1.ServiceHub.Current.SNSService.Add(node);
-                break;
-            case "Sqs Queue":
-                await ServiceHub_1.ServiceHub.Current.SQSService.Add(node);
-                break;
             case "Vscode Command":
                 await ServiceHub_1.ServiceHub.Current.VscodeService.Add(node, "Command");
-                break;
-            case "IAM Role":
-                await ServiceHub_1.ServiceHub.Current.IamService.AddRole(node);
-                break;
-            case "IAM Policy":
-                await ServiceHub_1.ServiceHub.Current.IamService.AddPolicy(node);
-                break;
-            case "EMR Cluster":
-                await ServiceHub_1.ServiceHub.Current.EmrService.Add(node);
                 break;
         }
         TreeState_1.TreeState.save();

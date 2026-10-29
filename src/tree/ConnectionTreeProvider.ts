@@ -29,7 +29,7 @@ export class ConnectionTreeProvider implements vscode.TreeDataProvider<vscode.Tr
         activeProfileNode.contextValue = 'ConnectionActiveProfileNode';
         activeProfileNode.iconPath = new vscode.ThemeIcon('account');
         activeProfileNode.command = {
-            command: 'AwsWorkbench.ConnectionChangeProfile',
+            command: 'ApacheFlink.ConnectionChangeProfile',
             title: 'Change Profile'
         };
 
@@ -52,7 +52,7 @@ export class ConnectionTreeProvider implements vscode.TreeDataProvider<vscode.Tr
         expirationTimeNode.contextValue = 'ConnectionExpirationTimeNode';
         expirationTimeNode.iconPath = new vscode.ThemeIcon(expirationIcon);
         expirationTimeNode.command = {
-            command: 'AwsWorkbench.ConnectionRefreshView',
+            command: 'ApacheFlink.ConnectionRefreshView',
             title: 'Refresh'
         };
 
@@ -60,7 +60,7 @@ export class ConnectionTreeProvider implements vscode.TreeDataProvider<vscode.Tr
         refreshCredentialsNode.contextValue = 'ConnectionRefreshCredentialsNode';
         refreshCredentialsNode.iconPath = new vscode.ThemeIcon('refresh');
         refreshCredentialsNode.command = {
-            command: 'AwsWorkbench.ConnectionRefreshCredentials',
+            command: 'ApacheFlink.ConnectionRefreshCredentials',
             title: 'Refresh Credentials'
         };
 
@@ -68,7 +68,7 @@ export class ConnectionTreeProvider implements vscode.TreeDataProvider<vscode.Tr
         testConnectionNode.contextValue = 'ConnectionTestAwsNode';
         testConnectionNode.iconPath = new vscode.ThemeIcon('plug');
         testConnectionNode.command = {
-            command: 'AwsWorkbench.ConnectionTestAwsConnection',
+            command: 'ApacheFlink.ConnectionTestAwsConnection',
             title: 'Test Aws Connection'
         };
 
@@ -76,7 +76,7 @@ export class ConnectionTreeProvider implements vscode.TreeDataProvider<vscode.Tr
         changeProfileNode.contextValue = 'ConnectionChangeProfileNode';
         changeProfileNode.iconPath = new vscode.ThemeIcon('settings-gear');
         changeProfileNode.command = {
-            command: 'AwsWorkbench.ConnectionChangeProfile',
+            command: 'ApacheFlink.ConnectionChangeProfile',
             title: 'Change Profile'
         };
 
