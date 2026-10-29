@@ -1,8 +1,8 @@
 {
   "name": "flink-vscode-extension",
-  "displayName": "Flink VS Code Extension",
+  "displayName": "Apache Flink",
   "description": "Manage Apache Flink clusters from VS Code",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "NecatiARSLAN",
   "repository": {
     "type": "git",
@@ -85,16 +85,16 @@
         {
           "id": "ApacheFlink",
           "title": "Apache Flink",
-          "icon": "media/flink-vscode-extension-logo.png"
+          "icon": "media/flink-vscode-extension-activitybar.png"
         }
       ]
     },
     "views": {
       "ApacheFlink": [
-        {
+        { 
           "id": "ApacheFlinkView",
           "name": "Clusters",
-          "icon": "media/flink-vscode-extension-logo.png"
+          "icon": "media/flink-vscode-extension-activitybar.png"
         }
       ]
     },
