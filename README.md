@@ -1,31 +1,69 @@
-# Flink VS Code Extension
+# Apache Flink for VS Code
 
-Manage Apache Flink REST clusters from the VS Code Explorer.
+![Apache Flink cluster explorer and overview panel](media/readme/main-screen.png)
 
-## Getting started
+Manage Apache Flink clusters directly from VS Code. Browse jobs, Task Managers, checkpoints, and JARs, inspect diagnostics in dedicated panels, and run cluster operations without leaving your editor.
 
-1. Open the **Apache Flink** activity bar view.
-2. Select **Add Cluster** and enter a name and Flink REST URL. For a local cluster, use `http://localhost:8081`.
-3. Use **Test Connection** on the cluster to verify its REST API.
-4. Expand the cluster to inspect its overview, jobs, Task Managers, JobManager, checkpoints, and JARs.
+## Features
 
-Cluster profiles are stored in VS Code global state. Profiles default to **Read-only**; edit a profile and choose **Allow operations** to enable mutations. Existing profiles are treated as read-only. Actions that cancel, stop, rescale, delete, submit, or dispose ask for confirmation. Resource details open as formatted JSON documents.
+### 🌳 Cluster Explorer
+- Manage multiple Flink REST endpoints from one Explorer view
+- Add, edit, remove, refresh, and test cluster profiles
+- Support local clusters and REST URLs behind a proxy or path prefix
+- Store profiles in VS Code global state
 
-## Included functionality
+### 📊 Cluster and Job Insights
+- View Flink version, job counts, Task Managers, and slot availability
+- Group jobs by status and inspect job details, execution plans, exceptions, and configuration
+- Browse checkpoint history, checkpoint details, and vertex subtask data
+- Open resource-specific panels with summaries and tables instead of raw JSON
 
-- Cluster overview and Flink version; jobs grouped by status, with overview, plan, exceptions, configuration, and checkpoints
-- Task Manager list, details, logs, metrics charts, and thread dumps
-- JobManager configuration, environment, logs, metrics charts, and thread dumps
-- Checkpoint history, details, and per-vertex subtask details
-- Cancel jobs, trigger savepoints/checkpoints, stop with savepoint, and rescale jobs
-- Upload, submit, plan, and delete session-cluster JARs
-- Savepoint tracking and asynchronous savepoint disposal
-- Vertex details, backpressure, flamegraphs, watermarks, subtask times, Task Managers, and metrics charts
+### 🧭 Task Manager and JobManager Diagnostics
+- Inspect Task Manager details, hardware, slots, and logs
+- View JobManager configuration, runtime environment, and logs
+- Open JobManager and Task Manager thread dumps
+- Explore vertex details, backpressure, flamegraphs, watermarks, and subtask timings
 
-The extension communicates with the Flink REST API from the extension host. For clusters behind a proxy, enter the full REST base URL, including any path prefix. This release supports unauthenticated HTTP/HTTPS REST endpoints; authentication providers and SQL Gateway support are not included.
+### ⚙️ Flink Operations
+- Cancel jobs, trigger checkpoints and savepoints, stop jobs with savepoints, and rescale jobs
+- Upload, plan, submit, and delete session-cluster JARs
+- Track savepoints and request asynchronous savepoint disposal
+- Follow progress for supported asynchronous operations
 
-## Development
+### 📈 Metrics
+- Browse JobManager, Task Manager, job, and vertex metrics
+- Chart numeric metrics with periodic samples
+- Pause metric polling when the panel is hidden
 
-- `npm run compile` builds the extension.
-- `npm run lint` lints the TypeScript source.
-- `npm test` runs both checks.
+## Getting Started
+
+1. Open the **Apache Flink** icon in the VS Code Activity Bar.
+2. Select **Add Cluster** and provide a name and Flink REST URL. For a local cluster, use `http://localhost:8081`.
+3. Use the cluster's **Test Connection** action to check the REST API and Flink version.
+4. Expand the cluster and select a resource to open its detail panel.
+
+Use the **Add Cluster** and **Refresh** buttons in the view title. Cluster actions such as edit, remove, and test connection are available on the cluster tree item.
+
+## Safety and Compatibility
+
+- New profiles default to **Read-only**. Edit a profile and choose **Allow operations** to enable mutations.
+- Existing profiles without an access-mode value remain read-only.
+- Mutating actions require confirmation; stop-with-savepoint and other disruptive actions use modal confirmation.
+- The extension currently supports unauthenticated HTTP/HTTPS Flink REST endpoints. Authentication providers and SQL Gateway support are not included.
+- JAR upload and submission are intended for session clusters; those endpoints may not be available on application-mode clusters.
+- For a reverse proxy, include any required path prefix in the cluster REST URL.
+
+
+## Contributing
+### Coming Soon
+- Support for Flink SQL Gateway endpoints
+
+
+## Support
+
+- Report issues on [GitHub](https://github.com/necatiarslan/flink-vscode-extension/issues)
+- Check [CHANGELOG.md](CHANGELOG.md) for version history
+
+## Donate
+If you find this extension helpful, consider supporting its development through a donation. Your contributions help maintain and improve the extension.
+Click [here](https://github.com/sponsors/necatiarslan) to donate. Thank you for your support!

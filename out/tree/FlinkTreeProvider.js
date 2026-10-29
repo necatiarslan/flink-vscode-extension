@@ -38,6 +38,7 @@ const vscode = __importStar(require("vscode"));
 const crypto_1 = require("crypto");
 const AsyncOperationTracker_1 = require("../flink/AsyncOperationTracker");
 const FlinkClient_1 = require("../flink/FlinkClient");
+const FlinkDetailPanel_1 = require("../flink/FlinkDetailPanel");
 const MetricChartPanel_1 = require("../flink/MetricChartPanel");
 class FlinkTreeNode extends vscode.TreeItem {
     nodeType;
@@ -377,12 +378,15 @@ class FlinkTreeProvider {
     getSavepoints(profile) {
         const savepoints = this.context.globalState.get(this.savepointKey(profile), []);
         const children = savepoints.map(savepoint => {
-            const item = this.node(savepoint.jobName, 'savepoint', profile, {
-                savepointPath: savepoint.path
-            });
+            const item = new FlinkTreeNode(savepoint.jobName, vscode.TreeItemCollapsibleState.None, 'savepoint', profile, { path: savepoint.path, title: 'Savepoint', viewType: 'savepoint' }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, savepoint.path);
             item.description = savepoint.path;
             item.tooltip = new Date(savepoint.createdAt).toLocaleString();
             item.contextValue = 'flinkSavepoint';
+            item.command = {
+                command: 'ApacheFlink.OpenResource',
+                title: 'Open Savepoint Details',
+                arguments: [item]
+            };
             return item;
         });
         if (!this.isReadOnly(profile)) {
@@ -400,6 +404,16 @@ class FlinkTreeProvider {
             return;
         }
         try {
+            if (resource.viewType === 'savepoint') {
+                const savepoint = this.context.globalState
+                    .get(this.savepointKey(profile), [])
+                    .find(item => item.path === resource.path);
+                if (!savepoint) {
+                    throw new Error('This tracked savepoint no longer exists.');
+                }
+                await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, resource.path, resource.title, 'savepoint', savepoint);
+                return;
+            }
             if (resource.kind === 'clusterOverview') {
                 const client = new FlinkClient_1.FlinkClient(profile);
                 const [overview, config, jobManagerConfig, metrics] = await Promise.all([
@@ -408,7 +422,12 @@ class FlinkTreeProvider {
                     client.get('/jobmanager/config'),
                     client.get('/jobmanager/metrics')
                 ]);
-                await this.showJson(resource.title, { overview, config, jobManagerConfig, metrics });
+                await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, 'overview', resource.title, 'overview', {
+                    overview,
+                    config,
+                    jobManagerConfig,
+                    metrics
+                });
                 return;
             }
             if (resource.kind === 'metrics') {
@@ -421,10 +440,10 @@ class FlinkTreeProvider {
             const client = new FlinkClient_1.FlinkClient(profile);
             const data = await client.get(resource.path);
             if (resource.kind === 'logList') {
-                await this.openLog(profile, resource.path, data);
+                await this.openLog(profile, resource, data);
             }
             else {
-                await this.showJson(resource.title, data);
+                await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, resource.path, resource.title, resource.viewType, data);
             }
         }
         catch (error) {
@@ -439,14 +458,14 @@ class FlinkTreeProvider {
         }
         MetricChartPanel_1.MetricChartPanel.open(profile.id, new FlinkClient_1.FlinkClient(profile), path, metrics);
     }
-    async openLog(profile, path, data) {
+    async openLog(profile, resource, data) {
         const logs = Array.isArray(data)
             ? data
             : typeof data === 'object' && data !== null && Array.isArray(data.logs)
                 ? data.logs
                 : [];
         if (!logs.length) {
-            await this.showJson('Log Files', data);
+            await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, resource.path, resource.title, 'logs', { logs: Array.isArray(data) ? data : data.logs ?? [] });
             return;
         }
         const entries = logs.map(log => typeof log === 'string' ? log : JSON.stringify(log));
@@ -461,8 +480,9 @@ class FlinkTreeProvider {
         if (!fileName) {
             throw new Error('The selected log entry did not include a file name.');
         }
-        const content = await new FlinkClient_1.FlinkClient(profile).get(`${path}/${encodeURIComponent(fileName)}`);
-        await this.showJson(fileName, content);
+        const path = `${resource.path}/${encodeURIComponent(fileName)}`;
+        const content = await new FlinkClient_1.FlinkClient(profile).get(path);
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, path, fileName, 'logs', content);
     }
     async runOperation(node) {
         const savedProfile = node.profile ? this.store.get(node.profile.id) : undefined;
@@ -508,13 +528,13 @@ class FlinkTreeProvider {
                 }
                 return;
             case 'rescale':
-                await this.rescaleJob(client, operation);
+                await this.rescaleJob(client, profile.id, operation);
                 return;
             case 'uploadJar':
-                await this.uploadJar(client);
+                await this.uploadJar(client, profile.id);
                 return;
             case 'submitJar':
-                await this.submitJar(client, operation.jarId);
+                await this.submitJar(client, profile.id, operation.jarId);
                 return;
             case 'deleteJar':
                 if (await this.confirm(`Delete JAR "${operation.jarName}"?`, 'Delete JAR', true)) {
@@ -557,10 +577,10 @@ class FlinkTreeProvider {
             await vscode.window.showInformationMessage(`Savepoint created: ${savepointPath}`);
         }
         else {
-            await this.showJson('Savepoint Result', result);
+            await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, 'savepoint-result', 'Savepoint Result', 'savepoint', result);
         }
     }
-    async rescaleJob(client, operation) {
+    async rescaleJob(client, profileId, operation) {
         const value = await vscode.window.showInputBox({
             prompt: `New parallelism for "${operation.jobName}"`,
             validateInput: input => /^\d+$/.test(input) && Number(input) > 0
@@ -574,9 +594,9 @@ class FlinkTreeProvider {
         const response = await client.patchQuery(prefix, { parallelism: value });
         const triggerId = AsyncOperationTracker_1.AsyncOperationTracker.getTriggerId(response);
         const result = await new AsyncOperationTracker_1.AsyncOperationTracker(client).track('Rescaling job', `${prefix}/${encodeURIComponent(triggerId)}`);
-        await this.showJson('Rescale Result', result);
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, `rescale:${operation.jobId}`, 'Rescale Result', 'job', result);
     }
-    async uploadJar(client) {
+    async uploadJar(client, profileId) {
         const files = await vscode.window.showOpenDialog({
             canSelectFiles: true,
             canSelectFolders: false,
@@ -591,9 +611,9 @@ class FlinkTreeProvider {
         const content = await vscode.workspace.fs.readFile(files[0]);
         const result = await client.uploadJar(fileName, content);
         await vscode.window.showInformationMessage('JAR uploaded.');
-        await this.showJson('Uploaded JAR', result);
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, 'uploaded-jar', 'Uploaded JAR', 'jarPlan', result);
     }
-    async submitJar(client, jarId) {
+    async submitJar(client, profileId, jarId) {
         const entryClass = await vscode.window.showInputBox({ prompt: 'Entry class (optional)' });
         if (entryClass === undefined) {
             return;
@@ -638,7 +658,7 @@ class FlinkTreeProvider {
         params['allowNonRestoredState'] = String(allowNonRestoredState === 'Yes');
         const result = await client.postQuery(`/jars/${encodeURIComponent(jarId)}/run`, params);
         await vscode.window.showInformationMessage('Job submitted.');
-        await this.showJson('Submitted Job', result);
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, 'submitted-job', 'Submitted Job', 'job', result);
     }
     async disposeSavepoint(client, profile, existingPath) {
         const savepoints = this.context.globalState.get(this.savepointKey(profile), []);
@@ -665,7 +685,7 @@ class FlinkTreeProvider {
         const returnedId = this.triggerIdFromResult(response, triggerId);
         const result = await new AsyncOperationTracker_1.AsyncOperationTracker(client).track('Disposing savepoint', `/savepoint-disposal/${encodeURIComponent(returnedId)}`);
         await this.context.globalState.update(this.savepointKey(profile), savepoints.filter(savepoint => savepoint.path !== targetPath));
-        await this.showJson('Savepoint Disposal Result', result);
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, 'savepoint-disposal', 'Savepoint Disposal Result', 'savepoint', result);
     }
     async addCluster() {
         const name = await vscode.window.showInputBox({
@@ -772,12 +792,6 @@ class FlinkTreeProvider {
             : await vscode.window.showWarningMessage(message, action);
         return selected === action;
     }
-    async showJson(title, data) {
-        const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2) ?? String(data);
-        const document = await vscode.workspace.openTextDocument({ language: 'json', content });
-        await vscode.window.showTextDocument(document, { preview: false, viewColumn: vscode.ViewColumn.One });
-        void title;
-    }
     async rememberSavepoint(profile, jobName, path) {
         const key = this.savepointKey(profile);
         const existing = this.context.globalState.get(key, []);
@@ -826,20 +840,15 @@ class FlinkTreeProvider {
     }
     node(label, nodeType, profile, values = {}) {
         const item = new FlinkTreeNode(label, vscode.TreeItemCollapsibleState.Collapsed, nodeType, profile, undefined, undefined, values.jobId, values.jobName, values.vertexId, values.taskManagerId, values.jarId, undefined, values.checkpointId, values.savepointPath, values.jarName);
-        if (values.savepointPath) {
-            item.command = {
-                command: 'ApacheFlink.RunOperation',
-                title: 'Dispose Savepoint',
-                arguments: [this.operationNode('Dispose Savepoint', profile, {
-                        type: 'disposeSavepoint',
-                        path: values.savepointPath
-                    })]
-            };
-        }
         return item;
     }
-    resourceNode(label, profile, path, title, kind, resourceOverride) {
-        const resource = resourceOverride ?? { path: path ?? '', title, kind };
+    resourceNode(label, profile, path, title, kind) {
+        const resource = {
+            path: path ?? '',
+            title,
+            kind,
+            viewType: panelTypeFor(title, path ?? '')
+        };
         const item = new FlinkTreeNode(label, vscode.TreeItemCollapsibleState.None, 'resource', profile, resource);
         item.command = {
             command: 'ApacheFlink.OpenResource',
@@ -918,4 +927,132 @@ class FlinkTreeProvider {
     }
 }
 exports.FlinkTreeProvider = FlinkTreeProvider;
+function panelTypeFor(title, path) {
+    const normalizedTitle = title.toLowerCase();
+    const normalizedPath = path.toLowerCase();
+    if (normalizedTitle.includes('cluster overview')) {
+        return 'overview';
+    }
+    if (normalizedTitle.includes('job overview')) {
+        return 'job';
+    }
+    if (normalizedTitle.includes('execution plan')) {
+        return 'plan';
+    }
+    if (normalizedTitle.includes('jar plan')) {
+        return 'jarPlan';
+    }
+    if (normalizedTitle.includes('exception')) {
+        return 'exceptions';
+    }
+    if (normalizedTitle.includes('checkpoint configuration')) {
+        return 'configuration';
+    }
+    if (normalizedTitle.includes('checkpoint subtasks')) {
+        return 'subtasks';
+    }
+    if (normalizedTitle.includes('checkpoint details')) {
+        return 'checkpoint';
+    }
+    if (normalizedTitle.includes('checkpoint history')) {
+        return 'checkpoints';
+    }
+    if (normalizedTitle.includes('vertex details')) {
+        return 'vertex';
+    }
+    if (normalizedTitle.includes('backpressure')) {
+        return 'backpressure';
+    }
+    if (normalizedTitle.includes('flamegraph')) {
+        return 'flamegraph';
+    }
+    if (normalizedTitle.includes('watermarks')) {
+        return 'watermarks';
+    }
+    if (normalizedTitle.includes('vertex task managers')) {
+        return 'taskManagers';
+    }
+    if (normalizedTitle.includes('task manager metrics')) {
+        return 'details';
+    }
+    if (normalizedTitle.includes('task manager details')) {
+        return 'taskManager';
+    }
+    if (normalizedTitle.includes('task manager thread dump') || normalizedTitle.includes('jobmanager thread dump')) {
+        return 'threadDump';
+    }
+    if (normalizedTitle.includes('jobmanager configuration') || normalizedTitle.includes('job configuration')) {
+        return 'configuration';
+    }
+    if (normalizedTitle.includes('environment')) {
+        return 'environment';
+    }
+    if (normalizedTitle.includes('jobmanager metrics')) {
+        return 'details';
+    }
+    if (normalizedTitle.includes('jobmanager logs') || normalizedTitle.includes('task manager logs')) {
+        return 'logs';
+    }
+    if (normalizedTitle.includes('task manager')) {
+        return 'taskManager';
+    }
+    if (normalizedPath.includes('/checkpoints/details/') && normalizedPath.includes('/subtasks/')) {
+        return 'subtasks';
+    }
+    if (normalizedPath.includes('/checkpoints/details/')) {
+        return 'checkpoint';
+    }
+    if (normalizedPath.endsWith('/checkpoints')) {
+        return 'checkpoints';
+    }
+    if (normalizedPath.endsWith('/exceptions')) {
+        return 'exceptions';
+    }
+    if (normalizedPath.endsWith('/plan')) {
+        return 'plan';
+    }
+    if (normalizedPath.endsWith('/thread-dump')) {
+        return 'threadDump';
+    }
+    if (normalizedPath.endsWith('/logs')) {
+        return 'logs';
+    }
+    if (normalizedPath.endsWith('/config')) {
+        return 'configuration';
+    }
+    if (normalizedPath.endsWith('/environment')) {
+        return 'environment';
+    }
+    if (normalizedPath.includes('/backpressure')) {
+        return 'backpressure';
+    }
+    if (normalizedPath.includes('/flamegraph')) {
+        return 'flamegraph';
+    }
+    if (normalizedPath.includes('/watermarks')) {
+        return 'watermarks';
+    }
+    if (normalizedPath.includes('/subtasktimes')) {
+        return 'subtasks';
+    }
+    if (normalizedPath.endsWith('/taskmanagers')) {
+        return 'taskManagers';
+    }
+    if (normalizedPath.endsWith('/overview') || normalizedPath === '/overview') {
+        return 'overview';
+    }
+    if (normalizedPath.includes('/vertices/')) {
+        return 'vertex';
+    }
+    if (normalizedPath.includes('/jobs/')) {
+        return 'job';
+    }
+    if (normalizedPath.includes('/taskmanagers/')) {
+        return 'taskManager';
+    }
+    if (normalizedPath.includes('/jobmanager/')) {
+        return 'jobManager';
+    }
+    return 'details';
+}
 //# sourceMappingURL=FlinkTreeProvider.js.map
