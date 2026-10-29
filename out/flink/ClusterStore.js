@@ -14,22 +14,23 @@ class ClusterStore {
     get(id) {
         return this.getAll().find(profile => profile.id === id);
     }
-    async add(name, baseUrl) {
+    async add(name, baseUrl, readOnly) {
         const profile = {
             id: (0, crypto_1.randomUUID)(),
             name,
-            baseUrl: normalizeBaseUrl(baseUrl)
+            baseUrl: normalizeBaseUrl(baseUrl),
+            readOnly
         };
         await this.save([...this.getAll(), profile]);
         return profile;
     }
-    async update(id, name, baseUrl) {
+    async update(id, name, baseUrl, readOnly) {
         const profiles = this.getAll();
         const index = profiles.findIndex(profile => profile.id === id);
         if (index < 0) {
             throw new Error('The selected Flink cluster no longer exists.');
         }
-        profiles[index] = { id, name, baseUrl: normalizeBaseUrl(baseUrl) };
+        profiles[index] = { id, name, baseUrl: normalizeBaseUrl(baseUrl), readOnly };
         await this.save(profiles);
     }
     async remove(id) {
