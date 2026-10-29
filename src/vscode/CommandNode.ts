@@ -1,0 +1,55 @@
+import { NodeBase } from '../tree/NodeBase';
+import { Serialize } from '../common/serialization/Serialize';
+import { NodeRegistry } from '../common/serialization/NodeRegistry';
+import * as vscode from 'vscode';
+
+export class CommandNode extends NodeBase {
+
+    @Serialize()
+    public Title: string = "";
+
+    @Serialize()
+    public Command: string = "";
+
+    constructor(Title: string, parent?: NodeBase) 
+    {
+        super(Title, parent);
+        this.DefaultIcon = "terminal";
+        this.DefaultIconColor = "charts.black";
+        this.SetIcon();
+        this.Title = Title;
+
+        this.OnNodeRemove.subscribe(() => this.handleNodeRemove());
+        this.OnNodeView.subscribe(() => this.handleNodeView());
+        this.OnNodeEdit.subscribe(() => this.handleNodeEdit());
+        this.OnNodeRun.subscribe(() => this.handleNodeRun());
+
+
+        this.EnableNodeAlias = true;
+        this.SetContextValue();
+    }
+
+    private handleNodeRemove(): void {
+        this.Remove();
+        this.TreeSave();
+    }
+
+    private handleNodeView(): void {
+        vscode.window.showInformationMessage(`${this.Title}`, { modal: true, detail: this.Command });
+    }
+
+    private async handleNodeEdit(): Promise<void> {
+        let commandContent = await vscode.window.showInputBox({ placeHolder: 'Command', value: this.Command });
+        if(!commandContent){ return; }
+        this.Command = commandContent;
+        this.TreeSave();   
+    }
+
+    private handleNodeRun(): void {
+        vscode.commands.executeCommand(this.Command);
+    }
+
+}
+
+// Register with NodeRegistry for deserialization
+NodeRegistry.register('CommandNode', CommandNode);

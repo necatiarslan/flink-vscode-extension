@@ -1,2 +1,1 @@
-# flink-vscode-extension
-Apache Flink Vscode Extension
+# Apache Flink Vscode Extension
