@@ -1,6 +1,12 @@
 install_vsce: 
     npm install -g vsce
 
+flink-start:
+    docker compose up -d
+
+flink-stop:
+    docker compose down
+
 build:
     vsce package
     mv *.vsix ./vsix/

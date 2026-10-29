@@ -1,0 +1,28 @@
+services:
+  jobmanager:
+    image: flink:1.20
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        state.checkpoints.dir: file:///opt/flink/data/checkpoints
+        state.savepoints.dir: file:///opt/flink/data/savepoints
+        execution.checkpointing.interval: 10s
+    volumes:
+      - ./flink-data:/opt/flink/data
+
+  taskmanager:
+    image: flink:1.20
+    command: taskmanager
+    depends_on:
+      - jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+    volumes:
+      - ./flink-data:/opt/flink/data
