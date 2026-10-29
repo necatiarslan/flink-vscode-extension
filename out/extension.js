@@ -34,39 +34,16 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
-exports.deactivate = deactivate;
-const ui = __importStar(require("./common/UI"));
-const Session_1 = require("./common/Session");
-const TreeView_1 = require("./tree/TreeView");
-const ConnectionView_1 = require("./tree/ConnectionView");
-const ServiceHub_1 = require("./tree/ServiceHub");
-const TreeState_1 = require("./tree/TreeState");
-/**
- * Activates the Apache Flink extension.
- * This is the entry point for the extension.
- */
+const vscode = __importStar(require("vscode"));
+const ClusterStore_1 = require("./flink/ClusterStore");
+const FlinkTreeProvider_1 = require("./tree/FlinkTreeProvider");
 function activate(context) {
-    ui.logToOutput('Activating Apache Flink...');
-    try {
-        const session = new Session_1.Session(context); // Initialize session management
-        new ServiceHub_1.ServiceHub(context); // Initialize service hub
-        // 1. Initialize the Unified "Apache Flink" Tree Provider
-        new TreeView_1.TreeView(context);
-        // 1.1 Initialize Aws Connection Tree Provider
-        new ConnectionView_1.ConnectionView(context);
-        // 2. Load saved tree state after TreeView is initialized
-        TreeState_1.TreeState.load();
-        // 3. Refresh tree to display loaded nodes
-        TreeView_1.TreeView.Current.Refresh();
-        ui.logToOutput('Apache Flink activated successfully.');
-    }
-    catch (error) {
-        ui.logToOutput('Fatal error activating Apache Flink:', error);
-        ui.showInfoMessage('Apache Flink failed to activate. Check debug console for details.');
-    }
-}
-function deactivate() {
-    // Save tree state immediately before deactivation
-    TreeState_1.TreeState.saveImmediate();
+    const store = new ClusterStore_1.ClusterStore(context.globalState);
+    const provider = new FlinkTreeProvider_1.FlinkTreeProvider(context, store);
+    const tree = vscode.window.createTreeView('ApacheFlinkView', {
+        treeDataProvider: provider,
+        showCollapseAll: true
+    });
+    context.subscriptions.push(tree);
 }
 //# sourceMappingURL=extension.js.map

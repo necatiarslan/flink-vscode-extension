@@ -1,7 +1,7 @@
 {
   "name": "flink-vscode-extension",
   "displayName": "Flink VS Code Extension",
-  "description": "Flink integration for VS Code",
+  "description": "Manage Apache Flink clusters from VS Code",
   "version": "1.0.0",
   "publisher": "NecatiARSLAN",
   "repository": {
@@ -24,244 +24,35 @@
   "contributes": {
     "commands": [
       {
-        "command": "ApacheFlink.Add",
-        "title": "Add",
+        "command": "ApacheFlink.AddCluster",
+        "title": "Apache Flink: Add Cluster",
         "icon": "$(add)"
       },
       {
-        "command": "ApacheFlink.Remove",
-        "title": "Remove",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "ApacheFlink.Refresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "ApacheFlink.Filter",
-        "title": "Filter",
-        "icon": "$(filter)"
-      },
-      {
-        "command": "ApacheFlink.ShowOnlyFavorite",
-        "title": "Show Only Favorite",
-        "icon": "$(bookmark)"
-      },
-      {
-        "command": "ApacheFlink.ShowHidden",
-        "title": "Show Hidden",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "ApacheFlink.Hide",
-        "title": "Hide"
-      },
-      {
-        "command": "ApacheFlink.UnHide",
-        "title": "UnHide"
-      },
-      {
-        "command": "ApacheFlink.AddFav",
-        "title": "Fav",
-        "icon": "$(star)"
-      },
-      {
-        "command": "ApacheFlink.RemoveFav",
-        "title": "UnFav",
-        "icon": "$(star-empty)"
-      },
-      {
-        "command": "ApacheFlink.ShowOnlyInThisProfile",
-        "title": "Show Only In This Profile"
-      },
-      {
-        "command": "ApacheFlink.ShowInAnyProfile",
-        "title": "Show In Any Profile"
-      },
-      {
-        "command": "ApacheFlink.ShowOnlyInThisWorkspace",
-        "title": "Show Only In This Workspace"
-      },
-      {
-        "command": "ApacheFlink.ShowInAnyWorkspace",
-        "title": "Show In Any Workspace"
-      },
-      {
-        "command": "ApacheFlink.NodeAdd",
-        "title": "Add",
-        "icon": "$(add)"
-      },
-      {
-        "command": "ApacheFlink.NodeRemove",
-        "title": "Remove",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "ApacheFlink.NodeRefresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "ApacheFlink.NodeView",
-        "title": "View",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "ApacheFlink.NodeEdit",
-        "title": "Edit",
+        "command": "ApacheFlink.EditCluster",
+        "title": "Apache Flink: Edit Cluster",
         "icon": "$(pencil)"
       },
       {
-        "command": "ApacheFlink.NodeRun",
-        "title": "Run",
-        "icon": "$(play)"
+        "command": "ApacheFlink.RemoveCluster",
+        "title": "Apache Flink: Remove Cluster",
+        "icon": "$(trash)"
       },
       {
-        "command": "ApacheFlink.NodeStop",
-        "title": "Stop",
-        "icon": "$(stop)"
-      },
-      {
-        "command": "ApacheFlink.NodeOpen",
-        "title": "Open",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "ApacheFlink.NodeInfo",
-        "title": "Info",
-        "icon": "$(info)"
-      },
-      {
-        "command": "ApacheFlink.NodeCopy",
-        "title": "Copy",
-        "icon": "$(copy)"
-      },
-      {
-        "command": "ApacheFlink.NodeAlias",
-        "title": "Alias",
-        "icon": "$(case-sensitive)"
-      },
-      {
-        "command": "ApacheFlink.SetTooltip",
-        "title": "Set Tooltip",
-        "icon": "$(comment)"
-      },
-      {
-        "command": "ApacheFlink.SetColor",
-        "title": "Set Color",
-        "icon": "$(symbol-color)"
-      },
-      {
-        "command": "ApacheFlink.MoveUp",
-        "title": "Move Up",
-        "icon": "$(arrow-up)"
-      },
-      {
-        "command": "ApacheFlink.MoveDown",
-        "title": "Move Down",
-        "icon": "$(arrow-down)"
-      },
-      {
-        "command": "ApacheFlink.MoveToFolder",
-        "title": "Move to Folder",
-        "icon": "$(folder)"
-      },
-      {
-        "command": "ApacheFlink.SelectAwsProfile",
-        "title": "Select AWS Profile",
-        "icon": "$(account)"
-      },
-      {
-        "command": "ApacheFlink.SetAwsRegion",
-        "title": "Set AWS Region",
-        "icon": "$(location)"
-      },
-      {
-        "command": "ApacheFlink.UpdateAwsEndPoint",
-        "title": "Update AWS EndPoint"
-      },
-      {
-        "command": "ApacheFlink.TestAwsConnection",
-        "title": "Test AWS Connection",
+        "command": "ApacheFlink.TestConnection",
+        "title": "Apache Flink: Test Connection",
         "icon": "$(plug)"
       },
       {
-        "command": "ApacheFlink.RefreshCredentials",
-        "title": "Refresh AWS Credentials",
+        "command": "ApacheFlink.Refresh",
+        "title": "Apache Flink: Refresh",
         "icon": "$(refresh)"
-      },
-      {
-        "command": "ApacheFlink.ConnectionRefreshCredentials",
-        "title": "Refresh Credentials",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "ApacheFlink.ConnectionTestAwsConnection",
-        "title": "Test Aws Connection",
-        "icon": "$(plug)"
-      },
-      {
-        "command": "ApacheFlink.ConnectionChangeProfile",
-        "title": "Change Profile",
-        "icon": "$(settings-gear)"
-      },
-      {
-        "command": "ApacheFlink.ConnectionRefreshView",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "ApacheFlink.Donate",
-        "title": "Donate",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "ApacheFlink.BugAndNewFeatureRequest",
-        "title": "Bug and New Feature Request",
-        "icon": "$(bug)"
-      },
-      {
-        "command": "ApacheFlink.ExportConfig",
-        "title": "Export Config",
-        "icon": "$(arrow-down)"
-      },
-      {
-        "command": "ApacheFlink.ImportConfig",
-        "title": "Import Config",
-        "icon": "$(arrow-up)"
-      }
-    ],
-    "submenus": [
-      {
-        "id": "ApacheFlink.Connection",
-        "label": "Connection"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "ApacheFlink.Add",
-          "when": "view == ApacheFlinkView",
-          "group": "navigation"
-        },
-        {
-          "command": "ApacheFlink.Filter",
-          "when": "view == ApacheFlinkView",
-          "group": "navigation"
-        },
-        {
-          "command": "ApacheFlink.ShowOnlyFavorite",
-          "when": "view == ApacheFlinkView",
-          "group": "navigation"
-        },
-        {
-          "command": "ApacheFlink.ShowHidden",
-          "when": "view == ApacheFlinkView",
-          "group": "navigation"
-        },
-        {
-          "command": "ApacheFlink.SelectAwsProfile",
+          "command": "ApacheFlink.AddCluster",
           "when": "view == ApacheFlinkView",
           "group": "navigation"
         },
@@ -269,196 +60,23 @@
           "command": "ApacheFlink.Refresh",
           "when": "view == ApacheFlinkView",
           "group": "navigation"
-        },
-        {
-          "submenu": "ApacheFlink.Connection",
-          "when": "view == ApacheFlinkView",
-          "group": "other_1"
-        },
-        {
-          "command": "ApacheFlink.Donate",
-          "when": "view == ApacheFlinkView",
-          "group": "other_3"
-        },
-        {
-          "command": "ApacheFlink.BugAndNewFeatureRequest",
-          "when": "view == ApacheFlinkView",
-          "group": "other_3"
-        },
-        {
-          "command": "ApacheFlink.ExportConfig",
-          "when": "view == ApacheFlinkView",
-          "group": "other_4"
-        },
-        {
-          "command": "ApacheFlink.ImportConfig",
-          "when": "view == ApacheFlinkView",
-          "group": "other_4"
-        },
-        {
-          "command": "ApacheFlink.ConnectionRefreshView",
-          "when": "view == ApacheFlinkConnectionView",
-          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "ApacheFlink.AddFav",
-          "when": "view == ApacheFlinkView && viewItem =~ /#AddFav#/",
-          "group": "Filter"
+          "command": "ApacheFlink.EditCluster",
+          "when": "view == ApacheFlinkView && viewItem == flinkCluster",
+          "group": "inline"
         },
         {
-          "command": "ApacheFlink.RemoveFav",
-          "when": "view == ApacheFlinkView && viewItem =~ /#RemoveFav#/",
-          "group": "Filter"
+          "command": "ApacheFlink.RemoveCluster",
+          "when": "view == ApacheFlinkView && viewItem == flinkCluster",
+          "group": "inline"
         },
         {
-          "command": "ApacheFlink.Hide",
-          "when": "view == ApacheFlinkView && viewItem =~ /#Hide#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.UnHide",
-          "when": "view == ApacheFlinkView && viewItem =~ /#UnHide#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.ShowOnlyInThisProfile",
-          "when": "view == ApacheFlinkView && viewItem =~ /#ShowOnlyInThisProfile#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.ShowInAnyProfile",
-          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyProfile#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.ShowOnlyInThisWorkspace",
-          "when": "view == ApacheFlinkView && viewItem =~ /#ShowOnlyInThisWorkspace#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.ShowInAnyWorkspace",
-          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyWorkspace#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.ShowInAnyProfile",
-          "when": "view == ApacheFlinkView && viewItem =~ /#ShowInAnyProfile#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.NodeAlias",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeAlias#/",
-          "group": "Filter"
-        },
-        {
-          "command": "ApacheFlink.SetTooltip",
-          "when": "view == ApacheFlinkView && viewItem =~ /#SetTooltip#/",
-          "group": "Customize"
-        },
-        {
-          "command": "ApacheFlink.SetColor",
-          "when": "view == ApacheFlinkView && viewItem =~ /#SetColor#/",
-          "group": "Customize"
-        },
-        {
-          "command": "ApacheFlink.MoveUp",
-          "when": "view == ApacheFlinkView && viewItem =~ /#MoveUp#/",
-          "group": "Order"
-        },
-        {
-          "command": "ApacheFlink.MoveDown",
-          "when": "view == ApacheFlinkView && viewItem =~ /#MoveDown#/",
-          "group": "Order"
-        },
-        {
-          "command": "ApacheFlink.MoveToFolder",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeMove#/",
-          "group": "Order"
-        },
-        {
-          "command": "ApacheFlink.NodeAdd",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeAdd#/",
-          "group": "inline@1"
-        },
-        {
-          "command": "ApacheFlink.NodeRemove",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRemove#/",
-          "group": "inline@2"
-        },
-        {
-          "command": "ApacheFlink.NodeRefresh",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRefresh#/",
-          "group": "inline@3"
-        },
-        {
-          "command": "ApacheFlink.NodeView",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeView#/",
-          "group": "inline@4"
-        },
-        {
-          "command": "ApacheFlink.NodeEdit",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeEdit#/",
-          "group": "inline@5"
-        },
-        {
-          "command": "ApacheFlink.NodeRun",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeRun#/",
-          "group": "inline@6"
-        },
-        {
-          "command": "ApacheFlink.NodeStop",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeStop#/",
-          "group": "inline@7"
-        },
-        {
-          "command": "ApacheFlink.NodeOpen",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeOpen#/",
-          "group": "inline@8"
-        },
-        {
-          "command": "ApacheFlink.NodeInfo",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeInfo#/",
-          "group": "inline@9"
-        },
-        {
-          "command": "ApacheFlink.NodeCopy",
-          "when": "view == ApacheFlinkView && viewItem =~ /#NodeCopy#/",
-          "group": "inline@10"
-        },
-        {
-          "command": "ApacheFlink.ConnectionRefreshCredentials",
-          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionRefreshCredentialsNode",
-          "group": "inline@1"
-        },
-        {
-          "command": "ApacheFlink.ConnectionTestAwsConnection",
-          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionTestAwsNode",
-          "group": "inline@2"
-        },
-        {
-          "command": "ApacheFlink.ConnectionChangeProfile",
-          "when": "view == ApacheFlinkConnectionView && viewItem == ConnectionChangeProfileNode",
-          "group": "inline@3"
-        }
-      ],
-      "ApacheFlink.Connection": [
-        {
-          "command": "ApacheFlink.TestAwsConnection",
-          "group": "1_connection"
-        },
-        {
-          "command": "ApacheFlink.RefreshCredentials",
-          "group": "1_connection"
-        },
-        {
-          "command": "ApacheFlink.UpdateAwsEndPoint",
-          "group": "2_settings"
-        },
-        {
-          "command": "ApacheFlink.SetAwsRegion",
-          "group": "2_settings"
+          "command": "ApacheFlink.TestConnection",
+          "when": "view == ApacheFlinkView && viewItem == flinkCluster",
+          "group": "inline"
         }
       ]
     },
@@ -475,12 +93,7 @@
       "ApacheFlink": [
         {
           "id": "ApacheFlinkView",
-          "name": "Apache Flink",
-          "icon": "media/flink-vscode-extension-logo.png"
-        },
-        {
-          "id": "ApacheFlinkConnectionView",
-          "name": "Aws Connection",
+          "name": "Clusters",
           "icon": "media/flink-vscode-extension-logo.png"
         }
       ]
@@ -488,138 +101,23 @@
     "viewsWelcome": [
       {
         "view": "ApacheFlinkView",
-        "contents": "Please click [+] to add Aws Resources. \n [Add](command:ApacheFlink.Add) \n\n\n\n To Access Aws, you need to configure local Aws Credentials. \n For more detail on Aws Credentials, see the [AWS CLI Credentials Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). \n For a video guide, see this [YouTube Tutorial on AWS Credentials](https://www.youtube.com/watch?v=SON8sY1iOBU). \n\n [Test Aws Connection](command:ApacheFlink.TestAwsConnection) \n\n [Update Aws EndPoint](command:ApacheFlink.UpdateAwsEndPoint)"
+        "contents": "No Flink clusters configured. [Add a cluster](command:ApacheFlink.AddCluster)"
       }
-    ],
-    "icons": {
-      "s3-bucket": {
-        "description": "AWS Contributed Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\f1db"
-        }
-      },
-      "cloudwatch-loggroup": {
-        "description": "AWS Contributed Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\f1c4"
-        }
-      },
-      "cloudwatch-logstream": {
-        "description": "AWS Contributed Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\eb85"
-        }
-      },
-      "lambda-function": {
-        "description": "AWS Contributed Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\f1d1"
-        }
-      },
-      "step-functions": {
-        "description": "AWS Contributed Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\f1e1"
-        }
-      },
-      "glue-job": {
-        "description": "AWS Glue Job Icon",
-        "default": {
-          "fontPath": "./node_modules/@vscode/codicons/dist/codicon.ttf",
-          "fontCharacter": "\\eb8e"
-        }
-      },
-      "dynamodb-table": {
-        "description": "AWS DynamoDB Table Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\f1cc"
-        }
-      },
-      "sqs-queue": {
-        "description": "AWS SQS Queue Icon",
-        "default": {
-          "fontPath": "./media/fonts/aws-toolkit-icons.woff",
-          "fontCharacter": "\\eb9c"
-        }
-      }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "node ./out/test/runTest.js"
+    "test": "npm run compile && npm run lint"
   },
   "devDependencies": {
-    "@types/archiver": "^8.0.0",
-    "@types/glob": "^9.0.0",
-    "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.5",
-    "@types/tmp": "^0.2.6",
     "@types/vscode": "^1.106.0",
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
-    "@vscode/test-electron": "^3.1.0",
     "eslint": "^10.13.0",
-    "glob": "^13.0.6",
-    "mocha": "^12.0.3",
     "typescript": "^6.0.3"
-  },
-  "dependencies": {
-    "@aws-sdk/client-cloudwatch-logs": "^3.1156.0",
-    "@aws-sdk/client-dynamodb": "^3.1156.0",
-    "@aws-sdk/client-emr": "^3.1156.0",
-    "@aws-sdk/client-emr-serverless": "^3.1156.0",
-    "@aws-sdk/client-glue": "^3.1156.0",
-    "@aws-sdk/client-iam": "^3.1156.0",
-    "@aws-sdk/client-lambda": "^3.1156.0",
-    "@aws-sdk/client-s3": "^3.1156.0",
-    "@aws-sdk/client-sfn": "^3.1156.0",
-    "@aws-sdk/client-sns": "^3.1156.0",
-    "@aws-sdk/client-sqs": "^3.1156.0",
-    "@aws-sdk/client-sts": "^3.1156.0",
-    "@aws-sdk/credential-provider-ini": "^3.973.21",
-    "@aws-sdk/credential-provider-node": "^3.972.88",
-    "@aws-sdk/credential-providers": "^3.1156.0",
-    "@aws-sdk/shared-ini-file-loader": "^3.374.0",
-    "@aws-sdk/types": "^3.975.0",
-    "@tshepomgaga/aws-sfn-graph": "^0.0.6",
-    "@types/uuid": "^11.0.0",
-    "@vscode-elements/elements": "^2.5.1",
-    "@vscode/codicons": "^0.0.45",
-    "archiver": "^8.0.0",
-    "js-tiktoken": "^1.0.21",
-    "js-yaml": "^5.5.0",
-    "reflect-metadata": "^0.2.2",
-    "tmp": "^0.2.7",
-    "uuid": "^14.0.3",
-    "yauzl": "^3.4.0"
-  },
-  "overrides": {
-    "archiver": {
-      "readdir-glob": "3.0.0"
-    },
-    "archiver-utils": {
-      "glob": {
-        "minimatch": "9.0.9"
-      }
-    },
-    "mocha": {
-      "diff": "8.0.3",
-      "glob": {
-        "minimatch": "9.0.9"
-      },
-      "minimatch": "9.0.9",
-      "serialize-javascript": "7.0.4"
-    }
   }
 }
