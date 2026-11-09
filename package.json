@@ -1,8 +1,8 @@
 {
-  "name": "flink-vscode-extension",
-  "displayName": "Apache Flink",
+  "name": "apache-flink-manager",
+  "displayName": "Apache Flink Manager",
   "description": "Manage Apache Flink clusters from VS Code",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "NecatiARSLAN",
   "repository": {
     "type": "git",

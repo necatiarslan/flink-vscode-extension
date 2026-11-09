@@ -11,3 +11,9 @@ vsc-extension-quickstart.md
 .github/**
 logs/**
 unpacked_vsix
+docker-compose.yml
+justfile
+implementation_plan.md
+tests
+flink-data
+rest_v1_dispatcher.yml
