@@ -376,7 +376,7 @@ class FlinkTreeProvider {
         if (!jarId) {
             return [];
         }
-        const children = [this.resourceNode('Plan', profile, `/jars/${encodeURIComponent(jarId)}/plan`, 'JAR Plan')];
+        const children = [this.operationNode('Plan', profile, { type: 'planJar', jarId })];
         children.push(this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }), this.operationNode('Delete JAR', profile, {
             type: 'deleteJar',
             jarId,
@@ -552,6 +552,9 @@ class FlinkTreeProvider {
             case 'submitJar':
                 await this.submitJar(client, profile.id, operation.jarId);
                 return;
+            case 'planJar':
+                await this.planJar(client, profile.id, operation.jarId);
+                return;
             case 'restartFromSavepoint':
                 await this.restartFromSavepoint(client, operation.savepointPath);
                 return;
@@ -579,13 +582,11 @@ class FlinkTreeProvider {
         }
         const jobPath = `/jobs/${encodeURIComponent(operation.jobId)}`;
         const triggerId = (0, crypto_1.randomUUID)();
-        const requestBody = {
-            triggerId,
-            cancelJob: false,
-            drain: operation.stop
-        };
+        const requestBody = operation.stop
+            ? { triggerId, drain: true }
+            : { triggerId, 'cancel-job': false };
         if (destination.trim()) {
-            requestBody['targetDirectory'] = destination.trim();
+            requestBody[operation.stop ? 'targetDirectory' : 'target-directory'] = destination.trim();
         }
         const response = await client.post(`${jobPath}/${operation.stop ? 'stop' : 'savepoints'}`, requestBody);
         const returnedId = this.triggerIdFromResult(response, triggerId);
@@ -632,6 +633,10 @@ class FlinkTreeProvider {
         await vscode.window.showInformationMessage('JAR uploaded.');
         await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, 'uploaded-jar', 'Uploaded JAR', 'jarPlan', result);
     }
+    async planJar(client, profileId, jarId) {
+        const result = await client.post(`/jars/${encodeURIComponent(jarId)}/plan`, {});
+        await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, `jar-plan:${jarId}`, 'JAR Plan', 'jarPlan', result);
+    }
     async submitJar(client, profileId, jarId) {
         const entryClass = await vscode.window.showInputBox({ prompt: 'Entry class (optional)' });
         if (entryClass === undefined) {
@@ -661,21 +666,20 @@ class FlinkTreeProvider {
         if (!await this.confirm(`Submit JAR "${jarId}"?`, 'Submit', true)) {
             return;
         }
-        const params = {};
+        const body = {
+            programArgsList: programArgs.trim() ? programArgs.trim().split(/\s+/) : [],
+            allowNonRestoredState: allowNonRestoredState === 'Yes'
+        };
         if (entryClass.trim()) {
-            params['entry-class'] = entryClass.trim();
-        }
-        if (programArgs.trim()) {
-            params['program-args'] = programArgs.trim();
+            body.entryClass = entryClass.trim();
         }
         if (parallelism.trim()) {
-            params['parallelism'] = parallelism.trim();
+            body.parallelism = Number(parallelism);
         }
         if (savepointPath.trim()) {
-            params['savepointPath'] = savepointPath.trim();
+            body.savepointPath = savepointPath.trim();
         }
-        params['allowNonRestoredState'] = String(allowNonRestoredState === 'Yes');
-        const result = await client.postQuery(`/jars/${encodeURIComponent(jarId)}/run`, params);
+        const result = await client.post(`/jars/${encodeURIComponent(jarId)}/run`, body);
         await vscode.window.showInformationMessage('Job submitted.');
         await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, 'submitted-job', 'Submitted Job', 'job', result);
     }
@@ -768,12 +772,10 @@ class FlinkTreeProvider {
         if (!await this.confirm(`Permanently dispose savepoint "${targetPath}"?`, 'Dispose', true)) {
             return;
         }
-        const triggerId = (0, crypto_1.randomUUID)();
         const response = await client.post('/savepoint-disposal', {
-            triggerId,
-            savepointPath: targetPath
+            'savepoint-path': targetPath
         });
-        const returnedId = this.triggerIdFromResult(response, triggerId);
+        const returnedId = AsyncOperationTracker_1.AsyncOperationTracker.getTriggerId(response);
         const result = await new AsyncOperationTracker_1.AsyncOperationTracker(client).track('Disposing savepoint', `/savepoint-disposal/${encodeURIComponent(returnedId)}`);
         await this.context.globalState.update(this.savepointKey(profile), savepoints.filter(savepoint => savepoint.path !== targetPath));
         await FlinkDetailPanel_1.FlinkDetailPanel.open(profile.id, 'savepoint-disposal', 'Savepoint Disposal Result', 'savepoint', result);

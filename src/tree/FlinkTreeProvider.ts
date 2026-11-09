@@ -30,6 +30,7 @@ type Operation =
     | { type: 'checkpoint'; jobId: string; jobName: string }
     | { type: 'rescale'; jobId: string; jobName: string }
     | { type: 'uploadJar' }
+    | { type: 'planJar'; jarId: string }
     | { type: 'submitJar'; jarId: string }
     | { type: 'deleteJar'; jarId: string; jarName: string }
     | { type: 'disposeSavepoint'; path?: string };
@@ -417,7 +418,7 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         if (!jarId) {
             return [];
         }
-        const children = [this.resourceNode('Plan', profile, `/jars/${encodeURIComponent(jarId)}/plan`, 'JAR Plan')];
+        const children = [this.operationNode('Plan', profile, { type: 'planJar', jarId })];
         children.push(
             this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }),
             this.operationNode(
@@ -635,6 +636,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             case 'submitJar':
                 await this.submitJar(client, profile.id, operation.jarId);
                 return;
+            case 'planJar':
+                await this.planJar(client, profile.id, operation.jarId);
+                return;
             case 'restartFromSavepoint':
                 await this.restartFromSavepoint(client, operation.savepointPath);
                 return;
@@ -668,13 +672,11 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
 
         const jobPath = `/jobs/${encodeURIComponent(operation.jobId)}`;
         const triggerId = randomUUID();
-        const requestBody: Record<string, unknown> = {
-            triggerId,
-            cancelJob: false,
-            drain: operation.stop
-        };
+        const requestBody: Record<string, unknown> = operation.stop
+            ? { triggerId, drain: true }
+            : { triggerId, 'cancel-job': false };
         if (destination.trim()) {
-            requestBody['targetDirectory'] = destination.trim();
+            requestBody[operation.stop ? 'targetDirectory' : 'target-directory'] = destination.trim();
         }
         const response = await client.post<Record<string, unknown>>(
             `${jobPath}/${operation.stop ? 'stop' : 'savepoints'}`,
@@ -742,6 +744,14 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         await FlinkDetailPanel.open(profileId, 'uploaded-jar', 'Uploaded JAR', 'jarPlan', result);
     }
 
+    private async planJar(client: FlinkClient, profileId: string, jarId: string): Promise<void> {
+        const result = await client.post<unknown>(
+            `/jars/${encodeURIComponent(jarId)}/plan`,
+            {}
+        );
+        await FlinkDetailPanel.open(profileId, `jar-plan:${jarId}`, 'JAR Plan', 'jarPlan', result);
+    }
+
     private async submitJar(client: FlinkClient, profileId: string, jarId: string): Promise<void> {
         const entryClass = await vscode.window.showInputBox({ prompt: 'Entry class (optional)' });
         if (entryClass === undefined) {
@@ -775,15 +785,22 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             return;
         }
 
-        const params: Record<string, string> = {};
-        if (entryClass.trim()) { params['entry-class'] = entryClass.trim(); }
-        if (programArgs.trim()) { params['program-args'] = programArgs.trim(); }
-        if (parallelism.trim()) { params['parallelism'] = parallelism.trim(); }
-        if (savepointPath.trim()) { params['savepointPath'] = savepointPath.trim(); }
-        params['allowNonRestoredState'] = String(allowNonRestoredState === 'Yes');
-        const result = await client.postQuery(
+        const body: {
+            entryClass?: string;
+            programArgsList: string[];
+            parallelism?: number;
+            savepointPath?: string;
+            allowNonRestoredState: boolean;
+        } = {
+            programArgsList: programArgs.trim() ? programArgs.trim().split(/\s+/) : [],
+            allowNonRestoredState: allowNonRestoredState === 'Yes'
+        };
+        if (entryClass.trim()) { body.entryClass = entryClass.trim(); }
+        if (parallelism.trim()) { body.parallelism = Number(parallelism); }
+        if (savepointPath.trim()) { body.savepointPath = savepointPath.trim(); }
+        const result = await client.post(
             `/jars/${encodeURIComponent(jarId)}/run`,
-            params
+            body
         );
         await vscode.window.showInformationMessage('Job submitted.');
         await FlinkDetailPanel.open(profileId, 'submitted-job', 'Submitted Job', 'job', result);
@@ -898,12 +915,10 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         if (!await this.confirm(`Permanently dispose savepoint "${targetPath}"?`, 'Dispose', true)) {
             return;
         }
-        const triggerId = randomUUID();
         const response = await client.post<Record<string, unknown>>('/savepoint-disposal', {
-            triggerId,
-            savepointPath: targetPath
+            'savepoint-path': targetPath
         });
-        const returnedId = this.triggerIdFromResult(response, triggerId);
+        const returnedId = AsyncOperationTracker.getTriggerId(response);
         const result = await new AsyncOperationTracker(client).track(
             'Disposing savepoint',
             `/savepoint-disposal/${encodeURIComponent(returnedId)}`
