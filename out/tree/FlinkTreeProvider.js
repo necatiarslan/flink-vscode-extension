@@ -54,7 +54,8 @@ class FlinkTreeNode extends vscode.TreeItem {
     checkpointId;
     savepointPath;
     jarName;
-    constructor(label, collapsibleState, nodeType, profile, resource, operation, jobId, jobName, vertexId, taskManagerId, jarId, childNodes, checkpointId, savepointPath, jarName) {
+    refreshNode;
+    constructor(label, collapsibleState, nodeType, profile, resource, operation, jobId, jobName, vertexId, taskManagerId, jarId, childNodes, checkpointId, savepointPath, jarName, refreshNode) {
         super(label, collapsibleState);
         this.nodeType = nodeType;
         this.profile = profile;
@@ -69,6 +70,7 @@ class FlinkTreeNode extends vscode.TreeItem {
         this.checkpointId = checkpointId;
         this.savepointPath = savepointPath;
         this.jarName = jarName;
+        this.refreshNode = refreshNode;
     }
 }
 exports.FlinkTreeNode = FlinkTreeNode;
@@ -81,7 +83,7 @@ class FlinkTreeProvider {
         this.context = context;
         this.store = store;
         context.subscriptions.push(this.changes);
-        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.AddCluster', () => this.addCluster()), vscode.commands.registerCommand('ApacheFlink.EditCluster', (node) => this.editCluster(node)), vscode.commands.registerCommand('ApacheFlink.RemoveCluster', (node) => this.removeCluster(node)), vscode.commands.registerCommand('ApacheFlink.TestConnection', (node) => this.testConnection(node)), vscode.commands.registerCommand('ApacheFlink.Refresh', () => this.refresh()), vscode.commands.registerCommand('ApacheFlink.OpenResource', (node) => this.openResource(node)), vscode.commands.registerCommand('ApacheFlink.RunOperation', (node) => this.runOperation(node)));
+        context.subscriptions.push(vscode.commands.registerCommand('ApacheFlink.AddCluster', () => this.addCluster()), vscode.commands.registerCommand('ApacheFlink.EditCluster', (node) => this.editCluster(node)), vscode.commands.registerCommand('ApacheFlink.RemoveCluster', (node) => this.removeCluster(node)), vscode.commands.registerCommand('ApacheFlink.TestConnection', (node) => this.testConnection(node)), vscode.commands.registerCommand('ApacheFlink.Refresh', () => this.refresh()), vscode.commands.registerCommand('ApacheFlink.OpenResource', (node) => this.openResource(node)), vscode.commands.registerCommand('ApacheFlink.RunOperation', (node) => this.runOperation(node)), vscode.commands.registerCommand('_ApacheFlink.UploadJar#sideBar', (node) => this.uploadJarFromNode(node)));
     }
     getTreeItem(element) {
         return element;
@@ -89,11 +91,10 @@ class FlinkTreeProvider {
     async getChildren(element) {
         if (!element) {
             return this.store.getAll().map(profile => {
-                const readOnly = profile.readOnly ?? true;
                 const item = new FlinkTreeNode(profile.name, vscode.TreeItemCollapsibleState.Collapsed, 'cluster', profile);
-                item.description = `${profile.baseUrl}${readOnly ? '  (read-only)' : ''}`;
+                item.description = profile.baseUrl;
                 item.contextValue = 'flinkCluster';
-                item.iconPath = new vscode.ThemeIcon(readOnly ? 'lock' : 'server');
+                item.iconPath = new vscode.ThemeIcon('server');
                 return item;
             });
         }
@@ -104,8 +105,8 @@ class FlinkTreeProvider {
             return [this.messageNode(`Unable to load: ${this.errorMessage(error)}`)];
         }
     }
-    refresh() {
-        this.changes.fire();
+    refresh(node) {
+        this.changes.fire(node);
     }
     async getNodeChildren(node) {
         const profile = node.profile;
@@ -134,11 +135,13 @@ class FlinkTreeProvider {
             case 'jobManager':
                 return this.getJobManagerChildren(profile);
             case 'jars':
-                return this.getJars(profile);
+                return this.getJars(profile, node);
             case 'jar':
                 return this.jarActions(node);
             case 'savepoints':
                 return this.getSavepoints(profile);
+            case 'savepoint':
+                return this.savepointActions(node);
             case 'checkpointDetails':
                 return this.getCheckpointDetails(node);
             default:
@@ -167,7 +170,9 @@ class FlinkTreeProvider {
             this.node('Savepoints', 'savepoints', profile)
         ];
         if (includeJars) {
-            children.push(this.node('Jars', 'jars', profile));
+            const jarsNode = this.node('Jars', 'jars', profile);
+            jarsNode.contextValue = 'flinkJarsWritable';
+            children.push(jarsNode);
         }
         return children;
     }
@@ -216,7 +221,7 @@ class FlinkTreeProvider {
             this.node('Checkpoints', 'checkpoints', profile, { jobId, jobName }),
             this.node('Vertices', 'vertices', profile, { jobId, jobName })
         ];
-        if (!this.isReadOnly(profile) && this.isJobRunning(node.description)) {
+        if (this.isJobRunning(node.description)) {
             children.push(this.operationNode('Cancel Job', profile, { type: 'cancelJob', jobId, jobName }), this.operationNode('Trigger Savepoint', profile, { type: 'savepoint', jobId, jobName }), this.operationNode('Stop with Savepoint', profile, { type: 'savepoint', jobId, jobName, stop: true }), this.operationNode('Trigger Checkpoint', profile, { type: 'checkpoint', jobId, jobName }), this.operationNode('Rescale Job', profile, { type: 'rescale', jobId, jobName }));
         }
         if (detail.vertices?.length) {
@@ -342,7 +347,7 @@ class FlinkTreeProvider {
             this.resourceNode('Thread Dump', profile, '/jobmanager/thread-dump', 'JobManager Thread Dump')
         ];
     }
-    async getJars(profile) {
+    async getJars(profile, jarsNode) {
         const result = await new FlinkClient_1.FlinkClient(profile).get('/jars');
         const jars = result.files ?? [];
         const nodes = jars.map(jar => {
@@ -350,14 +355,20 @@ class FlinkTreeProvider {
                 jarId: jar.id,
                 jarName: jar.name || jar.id
             });
+            item.refreshNode = jarsNode;
             item.description = jar.entry;
             item.tooltip = `Jar ID: ${jar.id}`;
             return item;
         });
-        if (!this.isReadOnly(profile)) {
-            nodes.unshift(this.operationNode('Upload JAR', profile, { type: 'uploadJar' }));
-        }
         return nodes.length ? nodes : [this.messageNode('No uploaded JARs')];
+    }
+    async uploadJarFromNode(node) {
+        if (!node.profile) {
+            return;
+        }
+        const operationNode = this.operationNode('Upload JAR', node.profile, { type: 'uploadJar' });
+        operationNode.refreshNode = node;
+        await this.runOperation(operationNode);
     }
     jarActions(node) {
         const profile = this.requireProfile(node);
@@ -366,19 +377,17 @@ class FlinkTreeProvider {
             return [];
         }
         const children = [this.resourceNode('Plan', profile, `/jars/${encodeURIComponent(jarId)}/plan`, 'JAR Plan')];
-        if (!this.isReadOnly(profile)) {
-            children.push(this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }), this.operationNode('Delete JAR', profile, {
-                type: 'deleteJar',
-                jarId,
-                jarName: String(node.label)
-            }));
-        }
+        children.push(this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }), this.operationNode('Delete JAR', profile, {
+            type: 'deleteJar',
+            jarId,
+            jarName: String(node.label)
+        }, node.refreshNode));
         return children;
     }
     getSavepoints(profile) {
         const savepoints = this.context.globalState.get(this.savepointKey(profile), []);
         const children = savepoints.map(savepoint => {
-            const item = new FlinkTreeNode(savepoint.jobName, vscode.TreeItemCollapsibleState.None, 'savepoint', profile, { path: savepoint.path, title: 'Savepoint', viewType: 'savepoint' }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, savepoint.path);
+            const item = new FlinkTreeNode(savepoint.jobName, vscode.TreeItemCollapsibleState.Collapsed, 'savepoint', profile, { path: savepoint.path, title: 'Savepoint', viewType: 'savepoint' }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, savepoint.path);
             item.description = savepoint.path;
             item.tooltip = new Date(savepoint.createdAt).toLocaleString();
             item.contextValue = 'flinkSavepoint';
@@ -389,13 +398,24 @@ class FlinkTreeProvider {
             };
             return item;
         });
-        if (!this.isReadOnly(profile)) {
-            children.unshift(this.operationNode('Dispose Savepoint...', profile, { type: 'disposeSavepoint' }));
-        }
+        children.unshift(this.operationNode('Dispose Savepoint...', profile, { type: 'disposeSavepoint' }));
         if (!savepoints.length) {
             children.push(this.messageNode('No tracked savepoints'));
         }
         return children;
+    }
+    savepointActions(node) {
+        const profile = this.requireProfile(node);
+        const savepointPath = node.savepointPath;
+        if (!savepointPath) {
+            return [];
+        }
+        return [
+            this.operationNode('Restart Job from Savepoint...', profile, {
+                type: 'restartFromSavepoint',
+                savepointPath
+            })
+        ];
     }
     async openResource(node) {
         const profile = node.profile;
@@ -494,13 +514,9 @@ class FlinkTreeProvider {
             return;
         }
         const profile = savedProfile;
-        if (this.isReadOnly(profile)) {
-            this.showError('Operations are disabled for this read-only cluster', new Error('Edit the cluster and enable operations to proceed.'));
-            return;
-        }
         try {
             await this.executeOperation(profile, operation);
-            this.refresh();
+            this.refresh(node.refreshNode);
         }
         catch (error) {
             this.showError(`Could not ${String(operation.type).replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)}`, error);
@@ -535,6 +551,9 @@ class FlinkTreeProvider {
                 return;
             case 'submitJar':
                 await this.submitJar(client, profile.id, operation.jarId);
+                return;
+            case 'restartFromSavepoint':
+                await this.restartFromSavepoint(client, operation.savepointPath);
                 return;
             case 'deleteJar':
                 if (await this.confirm(`Delete JAR "${operation.jarName}"?`, 'Delete JAR', true)) {
@@ -660,6 +679,78 @@ class FlinkTreeProvider {
         await vscode.window.showInformationMessage('Job submitted.');
         await FlinkDetailPanel_1.FlinkDetailPanel.open(profileId, 'submitted-job', 'Submitted Job', 'job', result);
     }
+    async restartFromSavepoint(client, savepointPath) {
+        const jars = await client.get('/jars');
+        const jarChoices = (jars.files ?? []).map(jar => ({
+            label: jar.name || jar.id,
+            description: jar.id,
+            jarId: jar.id
+        }));
+        if (!jarChoices.length) {
+            throw new Error('No uploaded JARs were found on this cluster.');
+        }
+        const selectedJar = await vscode.window.showQuickPick(jarChoices, {
+            placeHolder: 'Select the JAR to restart from this savepoint'
+        });
+        if (!selectedJar) {
+            return;
+        }
+        const entryClass = await vscode.window.showInputBox({ prompt: 'Entry class (optional)' });
+        if (entryClass === undefined) {
+            return;
+        }
+        const programArgs = await vscode.window.showInputBox({
+            prompt: 'Program arguments (optional, separated by spaces)',
+            placeHolder: '--input /path/to/input'
+        });
+        if (programArgs === undefined) {
+            return;
+        }
+        const parallelism = await vscode.window.showInputBox({
+            prompt: 'Parallelism (optional)',
+            validateInput: input => !input || (/^\d+$/.test(input) && Number(input) > 0)
+                ? undefined
+                : 'Enter a positive whole number.'
+        });
+        if (parallelism === undefined) {
+            return;
+        }
+        const claimModes = [
+            { label: 'NO_CLAIM', value: 'NO_CLAIM' },
+            { label: 'CLAIM', value: 'CLAIM' },
+            { label: 'LEGACY', value: 'LEGACY' }
+        ];
+        const selectedClaimMode = await vscode.window.showQuickPick(claimModes, {
+            placeHolder: 'Select savepoint claim mode'
+        });
+        if (selectedClaimMode === undefined) {
+            return;
+        }
+        const allowNonRestoredState = await vscode.window.showQuickPick(['No', 'Yes'], {
+            placeHolder: 'Allow non-restored state?'
+        });
+        if (allowNonRestoredState === undefined) {
+            return;
+        }
+        const body = {
+            savepointPath,
+            allowNonRestoredState: allowNonRestoredState === 'Yes',
+            programArgsList: programArgs.trim() ? programArgs.trim().split(/\s+/) : [],
+            claimMode: selectedClaimMode.value
+        };
+        if (parallelism.trim()) {
+            body.parallelism = Number(parallelism);
+        }
+        if (entryClass.trim()) {
+            body.entryClass = entryClass.trim();
+        }
+        const result = await client.post(`/jars/${encodeURIComponent(selectedJar.jarId)}/run`, body);
+        const jobId = result['jobid'];
+        if (typeof jobId !== 'string' || !jobId) {
+            throw new Error('Flink did not return a job ID for the submitted job.');
+        }
+        await vscode.window.showInformationMessage(`Job started from savepoint. Job ID: ${jobId}`);
+    }
     async disposeSavepoint(client, profile, existingPath) {
         const savepoints = this.context.globalState.get(this.savepointKey(profile), []);
         const path = existingPath ?? await vscode.window.showQuickPick([...new Set(savepoints.map(savepoint => savepoint.path)), 'Enter another path...'], { placeHolder: 'Select a savepoint to dispose' });
@@ -705,12 +796,8 @@ class FlinkTreeProvider {
         if (baseUrl === undefined) {
             return;
         }
-        const readOnly = await this.chooseReadOnly(true);
-        if (readOnly === undefined) {
-            return;
-        }
         try {
-            await this.store.add(name.trim(), baseUrl.trim(), readOnly);
+            await this.store.add(name.trim(), baseUrl.trim());
             this.refresh();
         }
         catch (error) {
@@ -738,27 +825,13 @@ class FlinkTreeProvider {
         if (baseUrl === undefined) {
             return;
         }
-        const readOnly = await this.chooseReadOnly(profile.readOnly ?? true);
-        if (readOnly === undefined) {
-            return;
-        }
         try {
-            await this.store.update(profile.id, name.trim(), baseUrl.trim(), readOnly);
+            await this.store.update(profile.id, name.trim(), baseUrl.trim());
             this.refresh();
         }
         catch (error) {
             this.showError('Could not update Flink cluster', error);
         }
-    }
-    async chooseReadOnly(defaultReadOnly = true) {
-        const selected = await vscode.window.showQuickPick([
-            { label: 'Read-only', description: 'Block all cluster mutations', readOnly: true },
-            { label: 'Allow operations', description: 'Enable job, checkpoint, and JAR operations', readOnly: false }
-        ], {
-            placeHolder: `Choose cluster access mode (default: ${defaultReadOnly ? 'Read-only' : 'Allow operations'})`,
-            matchOnDescription: true
-        });
-        return selected?.readOnly ?? (selected ? false : undefined);
     }
     async removeCluster(node) {
         const profile = node.profile;
@@ -858,8 +931,9 @@ class FlinkTreeProvider {
         item.iconPath = new vscode.ThemeIcon(kind === 'metrics' ? 'graph' : 'file');
         return item;
     }
-    operationNode(label, profile, operation) {
+    operationNode(label, profile, operation, refreshNode) {
         const item = new FlinkTreeNode(label, vscode.TreeItemCollapsibleState.None, 'operation', profile, undefined, operation);
+        item.refreshNode = refreshNode;
         item.command = {
             command: 'ApacheFlink.RunOperation',
             title: label,
@@ -885,9 +959,6 @@ class FlinkTreeProvider {
         catch {
             return 'Enter a valid Flink REST URL, for example http://localhost:8081.';
         }
-    }
-    isReadOnly(profile) {
-        return profile.readOnly ?? true;
     }
     requireProfile(node) {
         if (!node.profile) {

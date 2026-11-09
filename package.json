@@ -47,6 +47,11 @@
         "command": "ApacheFlink.Refresh",
         "title": "Apache Flink: Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "_ApacheFlink.UploadJar#sideBar",
+        "title": "Upload JAR",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -63,6 +68,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "_ApacheFlink.UploadJar#sideBar",
+          "when": "view == ApacheFlinkView && viewItem == flinkJarsWritable",
+          "group": "inline@1"
+        },
         {
           "command": "ApacheFlink.EditCluster",
           "when": "view == ApacheFlinkView && viewItem == flinkCluster",

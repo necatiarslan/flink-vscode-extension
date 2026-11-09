@@ -2,7 +2,6 @@ export interface ClusterProfile {
     id: string;
     name: string;
     baseUrl: string;
-    readOnly?: boolean;
 }
 
 export interface FlinkJobOverview {
