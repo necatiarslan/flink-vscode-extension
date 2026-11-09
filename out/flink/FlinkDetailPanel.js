@@ -74,6 +74,7 @@ h2{font-size:1.12em;font-weight:500;margin:26px 0 10px}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--vscode-panel-border);vertical-align:top;overflow-wrap:anywhere}
 th{color:var(--vscode-descriptionForeground);font-weight:500}
+table.key-value-table th:first-child,table.key-value-table td:first-child{width:1%;white-space:nowrap;overflow-wrap:normal}
 tr:last-child td{border-bottom:0}
 code,pre{font-family:var(--vscode-editor-font-family);font-size:var(--vscode-editor-font-size)}
 code{overflow-wrap:anywhere}
@@ -149,7 +150,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
             ['Canceled jobs', value(overview['jobs-cancelled'] ?? overview['jobs-canceled'])]
         ];
         return this.cards(cards) + this.section('Cluster overview', this.keyValueTable(overview))
-            + this.section('JobManager configuration', this.table(record['jobManagerConfig']))
+            + this.renderConfiguration(record['jobManagerConfig'], 'JobManager configuration')
             + this.section('JobManager metrics', this.metricTable(metrics));
     }
     static renderJob(data) {
@@ -187,7 +188,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
             : Array.isArray(asRecord(data)['environment'])
                 ? asRecord(data)['environment']
                 : Object.entries(asRecord(data)).map(([key, item]) => ({ key, value: item }));
-        return this.section(title, this.table(entries));
+        return this.section(title, this.table(entries, true));
     }
     static renderCheckpoints(data) {
         const record = asRecord(data);
@@ -323,9 +324,9 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
         if (!entries.length) {
             return '<div class="empty">No data available</div>';
         }
-        return `<div class="section"><table><tbody>${entries.map(([key, item]) => (`<tr><th>${escapeHtml(humanize(key))}</th><td>${formatValue(item)}</td></tr>`)).join('')}</tbody></table></div>`;
+        return `<div class="section"><table class="key-value-table"><tbody>${entries.map(([key, item]) => (`<tr><th>${escapeHtml(humanize(key))}</th><td>${formatValue(item)}</td></tr>`)).join('')}</tbody></table></div>`;
     }
-    static table(input) {
+    static table(input, keyValue = false) {
         const rows = Array.isArray(input) ? input : input === undefined || input === null ? [] : [input];
         if (!rows.length) {
             return '<div class="empty">No data available</div>';
@@ -338,7 +339,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
         if (!columns.length) {
             return '<div class="empty">No data available</div>';
         }
-        return `<div class="section"><table><thead><tr>${columns.map(column => `<th>${escapeHtml(humanize(column))}</th>`).join('')}</tr></thead><tbody>${objects.map(row => (`<tr>${columns.map(column => `<td>${formatValue(row[column])}</td>`).join('')}</tr>`)).join('')}</tbody></table></div>`;
+        const tableClass = keyValue ? ' class="key-value-table"' : '';
+        return `<div class="section"><table${tableClass}><thead><tr>${columns.map(column => `<th>${escapeHtml(humanize(column))}</th>`).join('')}</tr></thead><tbody>${objects.map(row => (`<tr>${columns.map(column => `<td>${formatValue(row[column])}</td>`).join('')}</tr>`)).join('')}</tbody></table></div>`;
     }
     static metricTable(input) {
         return this.table(input);
