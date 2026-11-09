@@ -7,6 +7,14 @@ flink-start:
 flink-stop:
     docker compose down
 
+flink-start-producer:
+    npx tsx src/producer/producer.ts
+
+flink-run-job:
+    docker compose exec jobmanager flink run -d \
+    /opt/flink/examples/streaming/SocketWindowWordCount.jar \
+    --hostname host.docker.internal --port 9999
+
 build:
     vsce package
     mv *.vsix ./vsix/

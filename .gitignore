@@ -107,3 +107,4 @@ dist
 unpacked_vsix
 
 offline_license/*
+flink-data/
