@@ -15,18 +15,20 @@ Manage Apache Flink clusters directly from VS Code. Browse jobs, Task Managers, 
 ### 📊 Cluster and Job Insights
 - View Flink version, job counts, Task Managers, and slot availability
 - Group jobs by status and inspect job details, execution plans, exceptions, and configuration
+- Inspect job status, accumulators, execution results, resource requirements, and rescale history
 - Browse checkpoint history, checkpoint details, and vertex subtask data
+- Inspect vertex and subtask accumulators, attempts, and aggregated metrics
 - Open resource-specific panels with summaries and tables instead of raw JSON
 
 ### 🧭 Task Manager and JobManager Diagnostics
 - Inspect Task Manager details, hardware, slots, and logs
-- View JobManager configuration, runtime environment, and logs
+- View JobManager configuration, runtime environment, and logs, including per-job log URLs
 - Open JobManager and Task Manager thread dumps
 - Explore vertex details, backpressure, flamegraphs, watermarks, and subtask timings
 
 ### ⚙️ Flink Operations
 - Cancel jobs, trigger checkpoints and savepoints, stop jobs with savepoints, and rescale jobs
-- Upload, plan, submit, and delete session-cluster JARs
+- Upload, plan, submit jobs or applications from, and delete session-cluster JARs
 - Track savepoints and request asynchronous savepoint disposal
 - Follow progress for supported asynchronous operations
 
@@ -46,8 +48,7 @@ Use the **Add Cluster** and **Refresh** buttons in the view title. Cluster actio
 
 ## Safety and Compatibility
 
-- New profiles default to **Read-only**. Edit a profile and choose **Allow operations** to enable mutations.
-- Existing profiles without an access-mode value remain read-only.
+- Cluster operations are enabled for all profiles. Use a cluster endpoint with appropriate access controls.
 - Mutating actions require confirmation; stop-with-savepoint and other disruptive actions use modal confirmation.
 - The extension currently supports unauthenticated HTTP/HTTPS Flink REST endpoints. Authentication providers and SQL Gateway support are not included.
 - JAR upload and submission are intended for session clusters; those endpoints may not be available on application-mode clusters.

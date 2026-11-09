@@ -32,8 +32,25 @@ type Operation =
     | { type: 'uploadJar' }
     | { type: 'planJar'; jarId: string }
     | { type: 'submitJar'; jarId: string }
+    | { type: 'submitApplication'; jarId: string }
     | { type: 'deleteJar'; jarId: string; jarName: string }
-    | { type: 'disposeSavepoint'; path?: string };
+    | { type: 'disposeSavepoint'; path?: string }
+    | { type: 'updateResourceRequirements'; jobId: string; jobName: string }
+    | { type: 'rescaleDetails'; jobId: string; jobName: string }
+    | { type: 'jobTaskManagerLogUrl'; jobId: string; jobName: string }
+    | {
+        type: 'subtaskRequest';
+        jobId: string;
+        vertexId: string;
+        vertexName: string;
+        request: 'details' | 'metrics' | 'attempt' | 'attemptAccumulators';
+    }
+    | {
+        type: 'metricsRequest';
+        path: string;
+        title: string;
+        dimension?: 'jobs' | 'taskmanagers' | 'subtasks';
+    };
 
 interface SavedSavepoint {
     path: string;
@@ -188,7 +205,16 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         const result = await new FlinkClient(profile).get<FlinkJobsOverview>('/jobs/overview');
         const jobs = result.jobs ?? [];
         if (jobs.length === 0) {
-            return [this.messageNode('No jobs')];
+            return [
+                this.messageNode('No jobs'),
+                this.resourceNode('Job IDs and statuses', profile, '/jobs', 'Job IDs and Statuses'),
+                this.operationNode('Aggregate Job Metrics...', profile, {
+                    type: 'metricsRequest',
+                    path: '/jobs/metrics',
+                    title: 'Aggregate Job Metrics',
+                    dimension: 'jobs'
+                })
+            ];
         }
 
         const groups = new Map<string, FlinkTreeNode[]>();
@@ -209,12 +235,21 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             groups.set(state, group);
         }
 
-        return [...groups.entries()].map(([state, groupedJobs]) => {
-            const group = this.node(`${state} (${groupedJobs.length})`, 'jobGroup', profile);
-            group.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-            Object.defineProperty(group, 'childNodes', { value: groupedJobs });
-            return group;
-        });
+        return [
+            ...[...groups.entries()].map(([state, groupedJobs]) => {
+                const group = this.node(`${state} (${groupedJobs.length})`, 'jobGroup', profile);
+                group.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
+                Object.defineProperty(group, 'childNodes', { value: groupedJobs });
+                return group;
+            }),
+            this.resourceNode('Job IDs and statuses', profile, '/jobs', 'Job IDs and Statuses'),
+            this.operationNode('Aggregate Job Metrics...', profile, {
+                type: 'metricsRequest',
+                path: '/jobs/metrics',
+                title: 'Aggregate Job Metrics',
+                dimension: 'jobs'
+            })
+        ];
     }
 
     private async getJobChildren(node: FlinkTreeNode): Promise<FlinkTreeNode[]> {
@@ -229,6 +264,32 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             this.resourceNode('Exceptions', profile, `${prefix}/exceptions`, 'Job Exceptions'),
             this.resourceNode('Configuration', profile, `${prefix}/config`, 'Job Configuration'),
             this.resourceNode('Metrics Chart', profile, `${prefix}/metrics`, 'Job Metrics', 'metrics'),
+            this.resourceNode('Status', profile, `${prefix}/status`, 'Job Status'),
+            this.resourceNode('Accumulators', profile, `${prefix}/accumulators`, 'Job Accumulators'),
+            this.resourceNode('Execution Result', profile, `${prefix}/execution-result`, 'Job Execution Result'),
+            this.resourceNode('JobManager Configuration', profile, `${prefix}/jobmanager/config`, 'JobManager Configuration'),
+            this.resourceNode('JobManager Environment', profile, `${prefix}/jobmanager/environment`, 'JobManager Environment'),
+            this.resourceNode('JobManager Log URL', profile, `${prefix}/jobmanager/log-url`, 'JobManager Log URL'),
+            this.operationNode('Task Manager Log URL...', profile, {
+                type: 'jobTaskManagerLogUrl',
+                jobId,
+                jobName
+            }),
+            this.resourceNode('Resource Requirements', profile, `${prefix}/resource-requirements`, 'Job Resource Requirements'),
+            this.operationNode('Update Resource Requirements...', profile, {
+                type: 'updateResourceRequirements',
+                jobId,
+                jobName
+            }),
+            this.resourceNode('Rescale Configuration', profile, `${prefix}/rescales/config`, 'Rescale Configuration'),
+            this.resourceNode('Rescale History', profile, `${prefix}/rescales/history`, 'Rescale History'),
+            this.resourceNode('Rescale Overview', profile, `${prefix}/rescales/overview`, 'Rescale Overview'),
+            this.resourceNode('Rescale Summary', profile, `${prefix}/rescales/summary`, 'Rescale Summary'),
+            this.operationNode('Rescale Details...', profile, {
+                type: 'rescaleDetails',
+                jobId,
+                jobName
+            }),
             this.node('Checkpoints', 'checkpoints', profile, { jobId, jobName }),
             this.node('Vertices', 'vertices', profile, { jobId, jobName })
         ];
@@ -339,27 +400,74 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         const prefix = `/jobs/${encodeURIComponent(jobId)}/vertices/${encodeURIComponent(vertexId)}`;
         return [
             this.resourceNode('Details', profile, prefix, 'Vertex Details'),
+            this.resourceNode('Accumulators', profile, `${prefix}/accumulators`, 'Vertex Accumulators'),
+            this.operationNode('JobManager Operator Metrics...', profile, {
+                type: 'metricsRequest',
+                path: `${prefix}/jm-operator-metrics`,
+                title: 'JobManager Operator Metrics'
+            }),
             this.resourceNode('Backpressure', profile, `${prefix}/backpressure`, 'Backpressure'),
             this.resourceNode('Flamegraph', profile, `${prefix}/flamegraph`, 'Flamegraph'),
             this.resourceNode('Watermarks', profile, `${prefix}/watermarks`, 'Watermarks'),
             this.resourceNode('Subtask Times', profile, `${prefix}/subtasktimes`, 'Subtask Times'),
             this.resourceNode('Task Managers', profile, `${prefix}/taskmanagers`, 'Vertex Task Managers'),
-            this.resourceNode('Metrics Chart', profile, `${prefix}/metrics`, 'Vertex Metrics', 'metrics')
+            this.resourceNode('Metrics Chart', profile, `${prefix}/metrics`, 'Vertex Metrics', 'metrics'),
+            this.resourceNode('Subtask Accumulators', profile, `${prefix}/subtasks/accumulators`, 'Subtask Accumulators'),
+            this.operationNode('Aggregate Subtask Metrics...', profile, {
+                type: 'metricsRequest',
+                path: `${prefix}/subtasks/metrics`,
+                title: 'Aggregate Subtask Metrics',
+                dimension: 'subtasks'
+            }),
+            this.operationNode('Subtask Details...', profile, {
+                type: 'subtaskRequest',
+                jobId,
+                vertexId,
+                vertexName: String(node.label),
+                request: 'details'
+            }),
+            this.operationNode('Subtask Metrics...', profile, {
+                type: 'subtaskRequest',
+                jobId,
+                vertexId,
+                vertexName: String(node.label),
+                request: 'metrics'
+            }),
+            this.operationNode('Subtask Attempt Details...', profile, {
+                type: 'subtaskRequest',
+                jobId,
+                vertexId,
+                vertexName: String(node.label),
+                request: 'attempt'
+            }),
+            this.operationNode('Subtask Attempt Accumulators...', profile, {
+                type: 'subtaskRequest',
+                jobId,
+                vertexId,
+                vertexName: String(node.label),
+                request: 'attemptAccumulators'
+            })
         ];
     }
 
     private async getTaskManagers(profile: ClusterProfile): Promise<FlinkTreeNode[]> {
         const result = await new FlinkClient(profile).get<FlinkTaskManagers>('/taskmanagers');
-        if (!result.taskmanagers?.length) {
-            return [this.messageNode('No task managers')];
-        }
-        return result.taskmanagers.map(manager => {
+        const managers = (result.taskmanagers ?? []).map(manager => {
             const item = this.node(manager.id, 'taskManager', profile, { taskManagerId: manager.id });
             const used = Math.max(0, (manager.slotsNumber ?? 0) - (manager.freeSlots ?? 0));
             item.description = `${used}/${manager.slotsNumber ?? 0} slots`;
             item.iconPath = new vscode.ThemeIcon('server');
             return item;
         });
+        return [
+            this.operationNode('Aggregate Task Manager Metrics...', profile, {
+                type: 'metricsRequest',
+                path: '/taskmanagers/metrics',
+                title: 'Aggregate Task Manager Metrics',
+                dimension: 'taskmanagers'
+            }),
+            ...(managers.length ? managers : [this.messageNode('No task managers')])
+        ];
     }
 
     private getTaskManagerChildren(node: FlinkTreeNode): FlinkTreeNode[] {
@@ -421,6 +529,7 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         const children = [this.operationNode('Plan', profile, { type: 'planJar', jarId })];
         children.push(
             this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }),
+            this.operationNode('Submit Application...', profile, { type: 'submitApplication', jarId }),
             this.operationNode(
                 'Delete JAR',
                 profile,
@@ -636,6 +745,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             case 'submitJar':
                 await this.submitJar(client, profile.id, operation.jarId);
                 return;
+            case 'submitApplication':
+                await this.submitApplication(client, profile.id, operation.jarId);
+                return;
             case 'planJar':
                 await this.planJar(client, profile.id, operation.jarId);
                 return;
@@ -650,6 +762,21 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
                 return;
             case 'disposeSavepoint':
                 await this.disposeSavepoint(client, profile, operation.path);
+                return;
+            case 'updateResourceRequirements':
+                await this.updateResourceRequirements(client, operation.jobId, operation.jobName);
+                return;
+            case 'rescaleDetails':
+                await this.openRescaleDetails(client, profile.id, operation.jobId, operation.jobName);
+                return;
+            case 'jobTaskManagerLogUrl':
+                await this.openJobTaskManagerLogUrl(client, profile.id, operation.jobId, operation.jobName);
+                return;
+            case 'subtaskRequest':
+                await this.openSubtaskRequest(client, profile.id, operation);
+                return;
+            case 'metricsRequest':
+                await this.openMetricsRequest(client, profile.id, operation);
         }
     }
 
@@ -750,6 +877,63 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             {}
         );
         await FlinkDetailPanel.open(profileId, `jar-plan:${jarId}`, 'JAR Plan', 'jarPlan', result);
+    }
+
+    private async submitApplication(client: FlinkClient, profileId: string, jarId: string): Promise<void> {
+        const entryClass = await vscode.window.showInputBox({ prompt: 'Entry class (optional)' });
+        if (entryClass === undefined) { return; }
+        const programArgs = await vscode.window.showInputBox({ prompt: 'Program arguments (optional)' });
+        if (programArgs === undefined) { return; }
+        const parallelism = await vscode.window.showInputBox({
+            prompt: 'Parallelism (optional)',
+            validateInput: input => !input || (/^\d+$/.test(input) && Number(input) > 0)
+                ? undefined
+                : 'Enter a positive whole number.'
+        });
+        if (parallelism === undefined) { return; }
+        const savepointPath = await vscode.window.showInputBox({ prompt: 'Savepoint path (optional)' });
+        if (savepointPath === undefined) { return; }
+        const allowNonRestoredState = await vscode.window.showQuickPick(['No', 'Yes'], {
+            placeHolder: 'Allow non-restored state?'
+        });
+        if (allowNonRestoredState === undefined) { return; }
+        const claimModes = [
+            { label: 'Default (omit claim mode)', value: '' },
+            { label: 'NO_CLAIM', value: 'NO_CLAIM' },
+            { label: 'CLAIM', value: 'CLAIM' },
+            { label: 'LEGACY', value: 'LEGACY' }
+        ];
+        const claimMode = await vscode.window.showQuickPick(claimModes, {
+            placeHolder: 'Savepoint claim mode (optional)'
+        });
+        if (claimMode === undefined) { return; }
+
+        const body: Record<string, unknown> = {
+            allowNonRestoredState: allowNonRestoredState === 'Yes',
+            programArgsList: programArgs.trim() ? programArgs.trim().split(/\s+/) : []
+        };
+        if (entryClass.trim()) { body['entryClass'] = entryClass.trim(); }
+        if (parallelism.trim()) { body['parallelism'] = Number(parallelism); }
+        if (savepointPath.trim()) { body['savepointPath'] = savepointPath.trim(); }
+        if (claimMode.value) { body['claimMode'] = claimMode.value; }
+
+        const result = await client.post<Record<string, unknown>>(
+            `/jars/${encodeURIComponent(jarId)}/run-application`,
+            body
+        );
+        const applicationId = result['applicationid'] ?? result['applicationId'];
+        await vscode.window.showInformationMessage(
+            typeof applicationId === 'string'
+                ? `Application submitted. Application ID: ${applicationId}`
+                : 'Application submitted.'
+        );
+        await FlinkDetailPanel.open(
+            profileId,
+            `application:${String(applicationId ?? jarId)}`,
+            'Submitted Application',
+            'details',
+            result
+        );
     }
 
     private async submitJar(client: FlinkClient, profileId: string, jarId: string): Promise<void> {
@@ -893,6 +1077,137 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             throw new Error('Flink did not return a job ID for the submitted job.');
         }
         await vscode.window.showInformationMessage(`Job started from savepoint. Job ID: ${jobId}`);
+    }
+
+    private async updateResourceRequirements(
+        client: FlinkClient,
+        jobId: string,
+        jobName: string
+    ): Promise<void> {
+        const input = await vscode.window.showInputBox({
+            prompt: `Resource requirements JSON for "${jobName}"`,
+            placeHolder: '{"<vertex-id>":{"parallelism":{"lowerBound":1,"upperBound":4}}}',
+            validateInput: value => {
+                try {
+                    const parsed: unknown = JSON.parse(value);
+                    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+                        ? undefined
+                        : 'Enter a JSON object keyed by vertex ID.';
+                } catch {
+                    return 'Enter valid JSON.';
+                }
+            }
+        });
+        if (input === undefined) { return; }
+        const body: unknown = JSON.parse(input);
+        await client.put(`/jobs/${encodeURIComponent(jobId)}/resource-requirements`, body);
+        const result = await client.get<unknown>(`/jobs/${encodeURIComponent(jobId)}/resource-requirements`);
+        await FlinkDetailPanel.open(
+            jobId,
+            `resource-requirements:${jobId}`,
+            `Resource Requirements: ${jobName}`,
+            'details',
+            result
+        );
+    }
+
+    private async openRescaleDetails(
+        client: FlinkClient,
+        profileId: string,
+        jobId: string,
+        jobName: string
+    ): Promise<void> {
+        const rescaleId = await vscode.window.showInputBox({
+            prompt: `Rescale UUID for "${jobName}"`
+        });
+        if (!rescaleId?.trim()) { return; }
+        const path = `/jobs/${encodeURIComponent(jobId)}/rescales/details/${encodeURIComponent(rescaleId.trim())}`;
+        const result = await client.get<unknown>(path);
+        await FlinkDetailPanel.open(profileId, path, `Rescale Details: ${jobName}`, 'details', result);
+    }
+
+    private async openJobTaskManagerLogUrl(
+        client: FlinkClient,
+        profileId: string,
+        jobId: string,
+        jobName: string
+    ): Promise<void> {
+        const taskManagerId = await vscode.window.showInputBox({
+            prompt: `Task Manager ID for job "${jobName}"`
+        });
+        if (!taskManagerId?.trim()) { return; }
+        const path = `/jobs/${encodeURIComponent(jobId)}/taskmanagers/${encodeURIComponent(taskManagerId.trim())}/log-url`;
+        const result = await client.get<unknown>(path);
+        await FlinkDetailPanel.open(profileId, path, `Task Manager Log URL: ${jobName}`, 'details', result);
+    }
+
+    private async openSubtaskRequest(
+        client: FlinkClient,
+        profileId: string,
+        operation: Extract<Operation, { type: 'subtaskRequest' }>
+    ): Promise<void> {
+        const index = await vscode.window.showInputBox({
+            prompt: `Subtask index for "${operation.vertexName}"`,
+            validateInput: input => /^\d+$/.test(input) ? undefined : 'Enter a non-negative whole number.'
+        });
+        if (index === undefined) { return; }
+        const prefix = `/jobs/${encodeURIComponent(operation.jobId)}/vertices/${encodeURIComponent(operation.vertexId)}/subtasks/${encodeURIComponent(index)}`;
+        let path: string;
+        if (operation.request === 'details') {
+            path = prefix;
+        } else if (operation.request === 'metrics') {
+            path = `${prefix}/metrics`;
+            const metricIds = await vscode.window.showInputBox({
+                prompt: 'Metric IDs (optional, comma-separated)'
+            });
+            if (metricIds === undefined) { return; }
+            if (metricIds.trim()) { path += `?${new URLSearchParams({ get: metricIds.trim() })}`; }
+        } else {
+            const attempt = await vscode.window.showInputBox({
+                prompt: `Attempt number for subtask ${index}`,
+                validateInput: input => /^\d+$/.test(input) ? undefined : 'Enter a non-negative whole number.'
+            });
+            if (attempt === undefined) { return; }
+            path = `${prefix}/attempts/${encodeURIComponent(attempt)}`;
+            if (operation.request === 'attemptAccumulators') { path += '/accumulators'; }
+        }
+        const result = await client.get<unknown>(path);
+        await FlinkDetailPanel.open(
+            profileId,
+            path,
+            `${operation.vertexName}: Subtask ${index}`,
+            'details',
+            result
+        );
+    }
+
+    private async openMetricsRequest(
+        client: FlinkClient,
+        profileId: string,
+        operation: Extract<Operation, { type: 'metricsRequest' }>
+    ): Promise<void> {
+        const metricIds = await vscode.window.showInputBox({
+            prompt: 'Metric IDs (optional, comma-separated)'
+        });
+        if (metricIds === undefined) { return; }
+        const parameters = new URLSearchParams();
+        if (metricIds.trim()) { parameters.set('get', metricIds.trim()); }
+        if (operation.dimension) {
+            const entityIds = await vscode.window.showInputBox({
+                prompt: `${operation.dimension} IDs (optional, comma-separated)`
+            });
+            if (entityIds === undefined) { return; }
+            if (entityIds.trim()) { parameters.set(operation.dimension, entityIds.trim()); }
+            const aggregation = await vscode.window.showQuickPick(
+                ['MIN', 'MAX', 'SUM', 'AVG', 'SKEW'],
+                { placeHolder: 'Aggregation (optional)' }
+            );
+            if (aggregation === undefined) { return; }
+            if (aggregation) { parameters.set('agg', aggregation); }
+        }
+        const path = parameters.size ? `${operation.path}?${parameters}` : operation.path;
+        const result = await client.get<unknown>(path);
+        await FlinkDetailPanel.open(profileId, path, operation.title, 'details', result);
     }
 
     private async disposeSavepoint(client: FlinkClient, profile: ClusterProfile, existingPath?: string): Promise<void> {

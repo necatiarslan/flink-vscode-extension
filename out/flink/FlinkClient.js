@@ -26,6 +26,9 @@ class FlinkClient {
     patch(path, body) {
         return this.request(path, 'PATCH', body);
     }
+    put(path, body) {
+        return this.request(path, 'PUT', body);
+    }
     postQuery(path, params) {
         return this.request(`${path}?${new URLSearchParams(params)}`, 'POST');
     }

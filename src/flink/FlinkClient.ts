@@ -28,6 +28,10 @@ export class FlinkClient {
         return this.request<T>(path, 'PATCH', body);
     }
 
+    public put<T>(path: string, body: unknown): Promise<T> {
+        return this.request<T>(path, 'PUT', body);
+    }
+
     public postQuery<T>(path: string, params: Record<string, string>): Promise<T> {
         return this.request<T>(`${path}?${new URLSearchParams(params)}`, 'POST');
     }

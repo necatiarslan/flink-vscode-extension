@@ -15,13 +15,17 @@ Implemented route groups:
 - Checkpoints: history, configuration, details, per-vertex subtask details, triggering, and
   asynchronous trigger-status polling.
 - Vertex diagnostics: details, backpressure, flamegraph, watermarks, subtask times, task managers,
-  and metrics.
+  accumulators, JobManager operator metrics, aggregate subtask metrics, subtask/attempt details
+  and accumulators, and metrics.
 - Task Managers: list, details, log listing, metrics, and thread dump.
 - JobManager: configuration, environment, log listing, metrics, and thread dump.
-- Session JARs: list, upload, plan generation, delete, submit a job, and restart a job from a savepoint.
+- Session JARs: list, upload, plan generation, delete, submit a job or application, and restart a
+  job from a savepoint.
 - Savepoints: trigger, stop with savepoint, track results locally, dispose, and poll asynchronous
   operations.
-- Rescaling: trigger and poll asynchronous status.
+- Job controls: status, accumulators, execution result, JobManager resources/log URLs, resource
+  requirements, and rescale configuration/history/details/overview/summary.
+- Cluster aggregations: job and Task Manager metrics, plus the IDs/statuses job listing.
 
 ## Contract mismatches
 
@@ -40,32 +44,10 @@ The following request mismatches have been fixed:
    routes against the supported Flink versions or present log listings without attempting
    unsupported file reads.
 
-## Missing dispatcher functionality
+## Remaining dispatcher functionality
 
 Prioritize by the current session-cluster use case. These are not necessarily defects when the
 corresponding deployment mode or workflow is intentionally out of scope.
-
-### High priority: job and JAR workflows
-
-- Add `GET /jobs/{jobid}/status`, `/accumulators`, and `/execution-result`.
-- Add per-job JobManager configuration/environment and log URL resources:
-  `/jobs/{jobid}/jobmanager/config`, `/environment`, `/log-url`, and the job-specific
-  Task Manager `/log-url`.
-- Add JAR application submission with `POST /jars/{jarid}/run-application`, distinct from
-  session-job submission.
-
-### Medium priority: resource controls and diagnostics
-
-- Add job resource requirements with `GET` and `PUT /jobs/{jobid}/resource-requirements`.
-- Add rescale configuration and history/detail views:
-  `/jobs/{jobid}/rescales/config`, `/details/{rescaleuuid}`, `/history`, `/overview`, and
-  `/summary`.
-- Add vertex and subtask diagnostics:
-  vertex accumulators and JobManager operator metrics; aggregate subtask accumulators/metrics;
-  subtask detail, metrics, attempt detail, and attempt accumulators.
-- Add `GET /taskmanagers/metrics` for aggregate Task Manager metrics.
-- Add `GET /jobs/metrics` for aggregate job metrics.
-- Add `GET /jobs` if the IDs-and-statuses listing offers a useful view beyond `/jobs/overview`.
 
 ### Lower priority or deployment-specific
 
