@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "name": "top_two_users_per_window",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "json",
+    "watch": true,
+    "fields": [
+      { "name": "user", "type": "STRING" },
+      { "name": "amount", "type": "DOUBLE" },
+      { "name": "event_time", "type": "TIMESTAMP(3)" }
+    ],
+    "options": { "timestampFormat": "ISO-8601" },
+    "timeAttribute": {
+      "kind": "eventTime",
+      "column": "event_time",
+      "maxOutOfOrderness": { "value": 2, "unit": "SECOND" }
+    }
+  },
+  "steps": [
+    {
+      "type": "windowAggregate",
+      "window": { "kind": "tumble", "size": { "value": 2, "unit": "MINUTE" } },
+      "groupBy": ["user"],
+      "aggregates": [{ "fn": "SUM", "column": "amount", "as": "total" }],
+      "includeWindowStart": true,
+      "includeWindowEnd": true
+    },
+    {
+      "type": "topN",
+      "partitionBy": ["window_start", "window_end"],
+      "orderBy": { "column": "total", "direction": "DESC" },
+      "n": 2,
+      "rankColumn": "rank"
+    }
+  ],
+  "sink": { "type": "print" },
+  "settings": { "idleTimeoutSeconds": 60 }
+}

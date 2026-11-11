@@ -2,6 +2,82 @@ export interface ClusterProfile {
     id: string;
     name: string;
     baseUrl: string;
+    sqlGatewayUrl?: string;
+    readOnly?: boolean;
+}
+
+export interface SqlGatewaySession {
+    sessionHandle: string;
+}
+
+export interface SqlGatewayCloseSessionResponse {
+    status: string;
+}
+
+export interface SqlGatewayOpenSessionRequest {
+    properties?: Record<string, string>;
+    sessionName?: string;
+}
+
+export interface SqlGatewayExecuteStatementOptions {
+    executionConfig?: Record<string, string>;
+    executionTimeout?: number;
+}
+
+export interface SqlGatewayOperationStatus {
+    status: 'INITIALIZED' | 'PENDING' | 'RUNNING' | 'FINISHED' | 'CANCELED' | 'CLOSED' | 'ERROR' | 'TIMEOUT';
+    error?: string;
+    message?: string;
+    exception?: string | { message?: string };
+    [key: string]: unknown;
+}
+
+export type SqlGatewayResultType = 'NOT_READY' | 'PAYLOAD' | 'EOS';
+export type SqlGatewayResultKind = 'SUCCESS' | 'SUCCESS_WITH_CONTENT';
+
+export interface SqlGatewayResultRow {
+    kind?: string;
+    rowKind?: string;
+    fields?: unknown[];
+    [key: string]: unknown;
+}
+
+export interface SqlGatewayResultInfo {
+    columnInfos?: Array<{ name?: string; [key: string]: unknown }>;
+    columns?: Array<{ name?: string; [key: string]: unknown }>;
+    data?: SqlGatewayResultRow[];
+    resultSchema?: {
+        columnNames?: string[];
+        [key: string]: unknown;
+    };
+    [key: string]: unknown;
+}
+
+export interface SqlGatewayFetchResults {
+    jobID?: string;
+    nextResultUri?: string;
+    queryResult?: boolean;
+    isQueryResult?: boolean;
+    resultKind?: SqlGatewayResultKind;
+    resultType: SqlGatewayResultType;
+    results?: SqlGatewayResultInfo;
+}
+
+export interface SqlGatewayRunOptions extends SqlGatewayExecuteStatementOptions {
+    maxRows?: number;
+    pollingIntervalMs?: number;
+    signal?: AbortSignal;
+}
+
+export interface SqlGatewayStatementResult {
+    operationHandle: string;
+    status: SqlGatewayOperationStatus['status'];
+    columns: string[];
+    rows: SqlGatewayResultRow[];
+    jobID?: string;
+    durationMs: number;
+    truncated: boolean;
+    error?: string;
 }
 
 export interface FlinkJobOverview {

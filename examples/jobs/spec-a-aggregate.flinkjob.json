@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "name": "spec_a_aggregate",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "json",
+    "watch": false,
+    "fields": [
+      {
+        "name": "user",
+        "type": "STRING"
+      },
+      {
+        "name": "amount",
+        "type": "DOUBLE"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "type": "filter",
+      "mode": "all",
+      "conditions": [
+        {
+          "column": "amount",
+          "op": ">=",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "user"
+      ],
+      "aggregates": [
+        {
+          "fn": "SUM",
+          "column": "amount",
+          "as": "total"
+        }
+      ]
+    }
+  ],
+  "sink": {
+    "type": "print"
+  },
+  "settings": {}
+}

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "name": "first_event_per_user",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "json",
+    "watch": true,
+    "fields": [
+      { "name": "user", "type": "STRING" },
+      { "name": "amount", "type": "DOUBLE" },
+      { "name": "event_time", "type": "TIMESTAMP(3)" }
+    ],
+    "options": { "timestampFormat": "ISO-8601" },
+    "timeAttribute": {
+      "kind": "eventTime",
+      "column": "event_time",
+      "maxOutOfOrderness": { "value": 2, "unit": "SECOND" }
+    }
+  },
+  "steps": [
+    {
+      "type": "deduplicate",
+      "keyColumns": ["user"],
+      "keep": "first",
+      "orderColumn": "event_time"
+    }
+  ],
+  "sink": { "type": "print" },
+  "settings": { "idleTimeoutSeconds": 60 }
+}

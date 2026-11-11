@@ -5,9 +5,14 @@ src/**
 .yarnrc
 vsc-extension-quickstart.md
 **/tsconfig.json
+tsconfig.webview.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
+tsconfig.tools.json
+out-tools/**
+out/producer/**
+docs/**
 .github/**
 logs/**
 unpacked_vsix
@@ -17,3 +22,12 @@ implementation_plan.md
 tests
 flink-data
 rest_v1_dispatcher.yml
+examples/**
+!examples/jobs/
+!examples/jobs/*.flinkjob.json
+tools/**
+out/**/*.test.js
+justfile
+docker-compose.yml
+implementation_plan.md
+eslint.config.cjs

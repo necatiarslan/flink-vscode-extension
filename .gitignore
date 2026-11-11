@@ -105,6 +105,10 @@ dist
 
 .DS_Store
 unpacked_vsix
+out/
+out-tools/
+vsix/
+tests/target/
 
 offline_license/*
 flink-data/

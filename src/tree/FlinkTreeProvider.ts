@@ -99,6 +99,10 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             vscode.commands.registerCommand('ApacheFlink.OpenResource', (node: FlinkTreeNode) => this.openResource(node)),
             vscode.commands.registerCommand('ApacheFlink.RunOperation', (node: FlinkTreeNode) => this.runOperation(node)),
             vscode.commands.registerCommand(
+                '_ApacheFlink.CancelJob#sideBar',
+                (node: FlinkTreeNode) => this.cancelJobFromNode(node)
+            ),
+            vscode.commands.registerCommand(
                 '_ApacheFlink.UploadJar#sideBar',
                 (node: FlinkTreeNode) => this.uploadJarFromNode(node)
             )
@@ -114,7 +118,7 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             return this.store.getAll().map(profile => {
                 const item = new FlinkTreeNode(profile.name, vscode.TreeItemCollapsibleState.Collapsed, 'cluster', profile);
                 item.description = profile.baseUrl;
-                item.contextValue = 'flinkCluster';
+                item.contextValue = profile.sqlGatewayUrl ? 'flinkClusterWithSqlGateway' : 'flinkCluster';
                 item.iconPath = new vscode.ThemeIcon('server');
                 return item;
             });
@@ -186,16 +190,21 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             }
         }
 
+        const jobsNode = this.node('Jobs', 'jobs', profile);
+        if (profile.sqlGatewayUrl) {
+            jobsNode.contextValue = 'flinkJobsWithSqlGateway';
+        }
+
         const children = [
             this.resourceNode('Overview', profile, '/overview', 'Cluster Overview', 'clusterOverview'),
-            this.node('Jobs', 'jobs', profile),
+            jobsNode,
             this.node('Task Managers', 'taskManagers', profile),
             this.node('Job Manager', 'jobManager', profile),
             this.node('Savepoints', 'savepoints', profile)
         ];
         if (includeJars) {
             const jarsNode = this.node('Jars', 'jars', profile);
-            jarsNode.contextValue = 'flinkJarsWritable';
+            jarsNode.contextValue = profile.readOnly ? 'flinkJars' : 'flinkJarsWritable';
             children.push(jarsNode);
         }
         return children;
@@ -207,7 +216,6 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         if (jobs.length === 0) {
             return [
                 this.messageNode('No jobs'),
-                this.resourceNode('Job IDs and statuses', profile, '/jobs', 'Job IDs and Statuses'),
                 this.operationNode('Aggregate Job Metrics...', profile, {
                     type: 'metricsRequest',
                     path: '/jobs/metrics',
@@ -228,7 +236,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             item.id = `${profile.id}:job:${job.jid}`;
             item.description = state;
             item.tooltip = `Job ID: ${job.jid}`;
-            item.contextValue = `flinkJob.${state.toLowerCase()}`;
+            item.contextValue = state === 'RUNNING' && !profile.readOnly
+                ? 'flinkJobRunningWritable'
+                : `flinkJob.${state.toLowerCase()}`;
             item.iconPath = this.stateIcon(state);
             const group = groups.get(state) ?? [];
             group.push(item);
@@ -242,7 +252,6 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
                 Object.defineProperty(group, 'childNodes', { value: groupedJobs });
                 return group;
             }),
-            this.resourceNode('Job IDs and statuses', profile, '/jobs', 'Job IDs and Statuses'),
             this.operationNode('Aggregate Job Metrics...', profile, {
                 type: 'metricsRequest',
                 path: '/jobs/metrics',
@@ -293,10 +302,8 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             this.node('Checkpoints', 'checkpoints', profile, { jobId, jobName }),
             this.node('Vertices', 'vertices', profile, { jobId, jobName })
         ];
-
-        if (this.isJobRunning(node.description)) {
+        if (this.isJobRunning(node.description) && !profile.readOnly) {
             children.push(
-                this.operationNode('Cancel Job', profile, { type: 'cancelJob', jobId, jobName }),
                 this.operationNode('Trigger Savepoint', profile, { type: 'savepoint', jobId, jobName }),
                 this.operationNode('Stop with Savepoint', profile, { type: 'savepoint', jobId, jobName, stop: true }),
                 this.operationNode('Trigger Checkpoint', profile, { type: 'checkpoint', jobId, jobName }),
@@ -316,9 +323,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             });
             const vertexGroup = this.node('Vertices', 'vertices', profile, { jobId, jobName });
             Object.defineProperty(vertexGroup, 'childNodes', { value: vertexNodes });
-            return children.map(child => child.nodeType === 'vertices' ? vertexGroup : child);
+            return visibleJobChildren(children, profile).map(child => child.nodeType === 'vertices' ? vertexGroup : child);
         }
-        return children;
+        return visibleJobChildren(children, profile);
     }
 
     private async getCheckpointChildren(node: FlinkTreeNode): Promise<FlinkTreeNode[]> {
@@ -527,20 +534,22 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             return [];
         }
         const children = [this.operationNode('Plan', profile, { type: 'planJar', jarId })];
-        children.push(
-            this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }),
-            this.operationNode('Submit Application...', profile, { type: 'submitApplication', jarId }),
-            this.operationNode(
-                'Delete JAR',
-                profile,
-                {
-                    type: 'deleteJar',
-                    jarId,
-                    jarName: String(node.label)
-                },
-                node.refreshNode
-            )
-        );
+        if (!profile.readOnly) {
+            children.push(
+                this.operationNode('Submit JAR', profile, { type: 'submitJar', jarId }),
+                this.operationNode('Submit Application...', profile, { type: 'submitApplication', jarId }),
+                this.operationNode(
+                    'Delete JAR',
+                    profile,
+                    {
+                        type: 'deleteJar',
+                        jarId,
+                        jarName: String(node.label)
+                    },
+                    node.refreshNode
+                )
+            );
+        }
         return children;
     }
 
@@ -573,7 +582,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             };
             return item;
         });
-        children.unshift(this.operationNode('Dispose Savepoint...', profile, { type: 'disposeSavepoint' }));
+        if (!profile.readOnly) {
+            children.unshift(this.operationNode('Dispose Savepoint...', profile, { type: 'disposeSavepoint' }));
+        }
         if (!savepoints.length) {
             children.push(this.messageNode('No tracked savepoints'));
         }
@@ -584,6 +595,9 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         const profile = this.requireProfile(node);
         const savepointPath = node.savepointPath;
         if (!savepointPath) {
+            return [];
+        }
+        if (profile.readOnly) {
             return [];
         }
         return [
@@ -704,12 +718,32 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             return;
         }
         const profile = savedProfile;
+        if (profile.readOnly && isMutatingOperation(operation)) {
+            await vscode.window.showErrorMessage('This cluster profile is read-only. The selected Flink operation is disabled.');
+            return;
+        }
         try {
             await this.executeOperation(profile, operation);
             this.refresh(node.refreshNode);
         } catch (error) {
             this.showError(`Could not ${String(operation.type).replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)}`, error);
         }
+    }
+
+    private async cancelJobFromNode(node: FlinkTreeNode): Promise<void> {
+        if (
+            node.nodeType !== 'job'
+            || !node.jobId
+            || !node.profile
+            || !this.isJobRunning(node.description)
+        ) {
+            return;
+        }
+        await this.runOperation(this.operationNode(
+            'Cancel Job',
+            node.profile,
+            { type: 'cancelJob', jobId: node.jobId, jobName: node.jobName ?? node.jobId }
+        ));
     }
 
     private async executeOperation(profile: ClusterProfile, operation: Operation): Promise<void> {
@@ -1263,8 +1297,21 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         if (baseUrl === undefined) {
             return;
         }
+        const sqlGatewayUrl = await vscode.window.showInputBox({
+            prompt: 'SQL Gateway URL (optional; leave empty to skip)',
+            placeHolder: 'http://localhost:8083',
+            value: '',
+            validateInput: value => value.trim() ? this.validateUrl(value, 'http://localhost:8083') : undefined
+        });
+        if (sqlGatewayUrl === undefined) {
+            return;
+        }
+        const readOnly = await this.chooseReadOnly(false);
+        if (readOnly === undefined) {
+            return;
+        }
         try {
-            await this.store.add(name.trim(), baseUrl.trim());
+            await this.store.add(name.trim(), baseUrl.trim(), sqlGatewayUrl.trim(), readOnly);
             this.refresh();
         } catch (error) {
             this.showError('Could not add Flink cluster', error);
@@ -1292,8 +1339,21 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         if (baseUrl === undefined) {
             return;
         }
+        const sqlGatewayUrl = await vscode.window.showInputBox({
+            prompt: 'SQL Gateway URL (optional; leave empty to remove)',
+            placeHolder: 'http://localhost:8083',
+            value: profile.sqlGatewayUrl ?? '',
+            validateInput: value => value.trim() ? this.validateUrl(value, 'http://localhost:8083') : undefined
+        });
+        if (sqlGatewayUrl === undefined) {
+            return;
+        }
+        const readOnly = await this.chooseReadOnly(profile.readOnly ?? false);
+        if (readOnly === undefined) {
+            return;
+        }
         try {
-            await this.store.update(profile.id, name.trim(), baseUrl.trim());
+            await this.store.update(profile.id, name.trim(), baseUrl.trim(), sqlGatewayUrl.trim(), readOnly);
             this.refresh();
         } catch (error) {
             this.showError('Could not update Flink cluster', error);
@@ -1320,7 +1380,12 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         }
         try {
             const result = await new FlinkClient(profile).testConnection();
-            await vscode.window.showInformationMessage(`Connected to Flink ${result.version} at ${profile.baseUrl}.`);
+            const gatewayMessage = result.sqlGatewayVersions
+                ? ` SQL Gateway API versions: ${result.sqlGatewayVersions.join(', ') || 'none reported'}.`
+                : '';
+            await vscode.window.showInformationMessage(
+                `Connected to Flink ${result.version} at ${profile.baseUrl}.${gatewayMessage}`
+            );
         } catch (error) {
             this.showError(`Could not connect to "${profile.name}"`, error);
         }
@@ -1331,6 +1396,20 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             ? await vscode.window.showWarningMessage(message, { modal: true }, action)
             : await vscode.window.showWarningMessage(message, action);
         return selected === action;
+    }
+
+    private async chooseReadOnly(currentValue: boolean): Promise<boolean | undefined> {
+        const selected = await vscode.window.showQuickPick(
+            [
+                { label: 'Writable', description: 'Allow cluster and SQL mutations', value: false },
+                { label: 'Read-only', description: 'Allow only read-only SQL statements', value: true }
+            ],
+            {
+                placeHolder: 'Choose the cluster profile access mode',
+                ...(currentValue ? { activeItems: [{ label: 'Read-only', description: 'Allow only read-only SQL statements', value: true }] } : {})
+            }
+        );
+        return selected?.value;
     }
 
     private async rememberSavepoint(profile: ClusterProfile, jobName: string, path: string): Promise<void> {
@@ -1443,6 +1522,11 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
     ): FlinkTreeNode {
         const item = new FlinkTreeNode(label, vscode.TreeItemCollapsibleState.None, 'operation', profile, undefined, operation);
         item.refreshNode = refreshNode;
+        if (profile.readOnly && isMutatingOperation(operation)) {
+            item.contextValue = 'flinkReadOnlyOperation';
+            item.tooltip = 'This operation is disabled for a read-only cluster profile.';
+            return item;
+        }
         item.command = {
             command: 'ApacheFlink.RunOperation',
             title: label,
@@ -1456,7 +1540,7 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
         return new FlinkTreeNode(message, vscode.TreeItemCollapsibleState.None, 'message');
     }
 
-    private async validateUrl(value: string): Promise<string | undefined> {
+    private async validateUrl(value: string, example = 'http://localhost:8081'): Promise<string | undefined> {
         try {
             const url = new URL(value);
             if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -1467,7 +1551,7 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             }
             return undefined;
         } catch {
-            return 'Enter a valid Flink REST URL, for example http://localhost:8081.';
+            return `Enter a valid Flink URL, for example ${example}.`;
         }
     }
 
@@ -1507,6 +1591,28 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
     private showError(message: string, error: unknown): void {
         void vscode.window.showErrorMessage(`${message}: ${this.errorMessage(error)}`);
     }
+}
+
+function isMutatingOperation(operation: Operation): boolean {
+    return [
+        'cancelJob',
+        'savepoint',
+        'checkpoint',
+        'rescale',
+        'uploadJar',
+        'submitJar',
+        'submitApplication',
+        'restartFromSavepoint',
+        'deleteJar',
+        'disposeSavepoint',
+        'updateResourceRequirements'
+    ].includes(operation.type);
+}
+
+function visibleJobChildren(children: FlinkTreeNode[], profile: ClusterProfile): FlinkTreeNode[] {
+    return profile.readOnly
+        ? children.filter(child => !child.operation || !isMutatingOperation(child.operation))
+        : children;
 }
 
 function panelTypeFor(title: string, path: string): FlinkPanelType {

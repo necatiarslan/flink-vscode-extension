@@ -52,9 +52,77 @@
         "command": "_ApacheFlink.UploadJar#sideBar",
         "title": "Upload JAR",
         "icon": "$(add)"
+      },
+      {
+        "command": "_ApacheFlink.CancelJob#sideBar",
+        "title": "Cancel Job",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "flink.runSql",
+        "title": "Flink: Run SQL",
+        "icon": "$(play)"
+      },
+      {
+        "command": "flink.newJob",
+        "title": "Flink: New Job",
+        "icon": "$(add)"
+      },
+      {
+        "command": "flink.openJobSpec",
+        "title": "Flink: Open Job Spec",
+        "icon": "$(edit)"
       }
     ],
+    "configuration": {
+      "title": "Apache Flink",
+      "properties": {
+        "flink.sql.maxRows": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "Maximum number of SQL result rows to display before cancelling the operation."
+        },
+        "flink.sql.statementTimeoutSeconds": {
+          "type": "integer",
+          "default": 60,
+          "minimum": 1,
+          "description": "Statement execution timeout in seconds for Flink SQL Gateway."
+        },
+        "flink.preview.maxRows": {
+          "type": "integer",
+          "default": 50,
+          "minimum": 1,
+          "description": "Maximum number of rows returned by a Job Designer preview."
+        },
+        "flink.preview.timeoutSeconds": {
+          "type": "integer",
+          "default": 30,
+          "minimum": 1,
+          "description": "Maximum duration of a Job Designer preview before the Gateway operation is cancelled."
+        }
+      }
+    },
     "menus": {
+      "editor/title": [
+        {
+          "command": "flink.runSql",
+          "when": "resourceLangId == sql",
+          "group": "navigation"
+        },
+        {
+          "command": "flink.openJobSpec",
+          "when": "resourceFilename =~ /\\.flinkjob\\.json$/",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "flink.runSql",
+          "when": "resourceLangId == sql",
+          "group": "navigation"
+        }
+      ],
       "view/title": [
         {
           "command": "ApacheFlink.AddCluster",
@@ -69,8 +137,23 @@
       ],
       "view/item/context": [
         {
+          "command": "flink.newJob",
+          "when": "view == ApacheFlinkView && viewItem == flinkClusterWithSqlGateway",
+          "group": "inline@2"
+        },
+        {
+          "command": "flink.newJob",
+          "when": "view == ApacheFlinkView && viewItem == flinkJobsWithSqlGateway",
+          "group": "inline@2"
+        },
+        {
           "command": "_ApacheFlink.UploadJar#sideBar",
           "when": "view == ApacheFlinkView && viewItem == flinkJarsWritable",
+          "group": "inline@1"
+        },
+        {
+          "command": "_ApacheFlink.CancelJob#sideBar",
+          "when": "view == ApacheFlinkView && viewItem == flinkJobRunningWritable",
           "group": "inline@1"
         },
         {
@@ -117,10 +200,13 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && tsc -p ./tsconfig.webview.json",
     "watch": "tsc -watch -p ./",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "npm run compile && npm run lint"
+    "test": "npm run compile && node --test out/flink/*.test.js out/jobdesigner/*.test.js",
+    "test:integration": "npm run compile && node --test out/jobdesigner/*.integration.test.js",
+    "producer:files": "tsc -p tsconfig.tools.json && node out-tools/fileProducer.js",
+    "produce:events": "tsc -p tsconfig.tools.json && node out-tools/eventProducer.js"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

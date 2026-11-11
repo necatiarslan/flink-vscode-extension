@@ -52,13 +52,25 @@ export class FlinkClient {
         return this.request('/jars/upload', 'POST', form);
     }
 
-    public async testConnection(): Promise<{ version: string; overview: unknown }> {
+    public async testConnection(): Promise<{ version: string; overview: unknown; sqlGatewayVersions?: string[] }> {
         const config = await this.get<Record<string, unknown>>('/config');
         const overview = await this.get<unknown>('/overview');
         const version = config['flink-version'];
+        let sqlGatewayVersions: string[] | undefined;
+        if (this.profile.sqlGatewayUrl) {
+            const gateway = await new FlinkClient(
+                { ...this.profile, baseUrl: this.profile.sqlGatewayUrl },
+                this.timeoutMs
+            ).get<{ versions?: unknown }>('/api_versions');
+            if (!Array.isArray(gateway.versions) || !gateway.versions.every(item => typeof item === 'string')) {
+                throw new FlinkApiError('SQL Gateway returned an invalid /api_versions response.');
+            }
+            sqlGatewayVersions = gateway.versions;
+        }
         return {
             version: typeof version === 'string' ? version : 'Unknown',
-            overview
+            overview,
+            ...(sqlGatewayVersions ? { sqlGatewayVersions } : {})
         };
     }
 

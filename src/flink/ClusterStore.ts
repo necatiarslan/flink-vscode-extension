@@ -15,24 +15,45 @@ export class ClusterStore {
         return this.getAll().find(profile => profile.id === id);
     }
 
-    public async add(name: string, baseUrl: string): Promise<ClusterProfile> {
+    public async add(
+        name: string,
+        baseUrl: string,
+        sqlGatewayUrl?: string,
+        readOnly = false
+    ): Promise<ClusterProfile> {
+        const normalizedSqlGatewayUrl = normalizeOptionalBaseUrl(sqlGatewayUrl);
         const profile: ClusterProfile = {
             id: randomUUID(),
             name,
-            baseUrl: normalizeBaseUrl(baseUrl)
+            baseUrl: normalizeBaseUrl(baseUrl),
+            ...(normalizedSqlGatewayUrl ? { sqlGatewayUrl: normalizedSqlGatewayUrl } : {}),
+            readOnly
         };
         await this.save([...this.getAll(), profile]);
         return profile;
     }
 
-    public async update(id: string, name: string, baseUrl: string): Promise<void> {
+    public async update(
+        id: string,
+        name: string,
+        baseUrl: string,
+        sqlGatewayUrl?: string,
+        readOnly = false
+    ): Promise<void> {
         const profiles = this.getAll();
         const index = profiles.findIndex(profile => profile.id === id);
         if (index < 0) {
             throw new Error('The selected Flink cluster no longer exists.');
         }
 
-        profiles[index] = { id, name, baseUrl: normalizeBaseUrl(baseUrl) };
+        const normalizedSqlGatewayUrl = normalizeOptionalBaseUrl(sqlGatewayUrl);
+        profiles[index] = {
+            id,
+            name,
+            baseUrl: normalizeBaseUrl(baseUrl),
+            ...(normalizedSqlGatewayUrl ? { sqlGatewayUrl: normalizedSqlGatewayUrl } : {}),
+            readOnly
+        };
         await this.save(profiles);
     }
 
@@ -50,15 +71,19 @@ function normalizeBaseUrl(value: string): string {
     try {
         url = new URL(value);
     } catch {
-        throw new Error('Enter a valid Flink REST URL, for example http://localhost:8081.');
+        throw new Error('Enter a valid HTTP or HTTPS URL.');
     }
 
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-        throw new Error('Flink REST URLs must use HTTP or HTTPS.');
+        throw new Error('Flink URLs must use HTTP or HTTPS.');
     }
     if (url.username || url.password || url.search || url.hash) {
-        throw new Error('Do not include credentials, query parameters, or fragments in the cluster URL.');
+        throw new Error('Do not include credentials, query parameters, or fragments in the URL.');
     }
 
     return url.toString().replace(/\/+$/, '');
+}
+
+function normalizeOptionalBaseUrl(value: string | undefined): string | undefined {
+    return value?.trim() ? normalizeBaseUrl(value.trim()) : undefined;
 }

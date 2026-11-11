@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "name": "spec_b_word_count",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "raw",
+    "watch": true
+  },
+  "steps": [
+    {
+      "type": "parse",
+      "kind": "splitToRows",
+      "column": "line",
+      "delimiter": " ",
+      "as": "word"
+    },
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "word"
+      ],
+      "aggregates": [
+        {
+          "fn": "COUNT",
+          "as": "cnt"
+        }
+      ]
+    }
+  ],
+  "sink": {
+    "type": "print"
+  },
+  "settings": {}
+}

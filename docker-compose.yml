@@ -26,3 +26,20 @@ services:
         taskmanager.numberOfTaskSlots: 4
     volumes:
       - ./flink-data:/opt/flink/data
+
+  sql-gateway:
+    image: flink:1.20
+    command: sql-gateway.sh start-foreground
+    depends_on:
+      - jobmanager
+    ports:
+      - "8083:8083"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
+        sql-gateway.endpoint.rest.address: 0.0.0.0
+        sql-gateway.endpoint.rest.port: 8083
+    volumes:
+      - ./flink-data:/opt/flink/data

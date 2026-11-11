@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "name": "daily_cumulative_totals",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "json",
+    "watch": true,
+    "fields": [
+      { "name": "user", "type": "STRING" },
+      { "name": "amount", "type": "DOUBLE" },
+      { "name": "event_time", "type": "TIMESTAMP(3)" }
+    ],
+    "options": { "timestampFormat": "ISO-8601" },
+    "timeAttribute": {
+      "kind": "eventTime",
+      "column": "event_time",
+      "maxOutOfOrderness": { "value": 2, "unit": "SECOND" }
+    }
+  },
+  "steps": [
+    {
+      "type": "windowAggregate",
+      "window": {
+        "kind": "cumulate",
+        "step": { "value": 1, "unit": "MINUTE" },
+        "maxSize": { "value": 1, "unit": "DAY" }
+      },
+      "groupBy": ["user"],
+      "aggregates": [{ "fn": "SUM", "column": "amount", "as": "total" }],
+      "includeWindowStart": true,
+      "includeWindowEnd": true
+    }
+  ],
+  "sink": { "type": "print" },
+  "settings": { "idleTimeoutSeconds": 60 }
+}

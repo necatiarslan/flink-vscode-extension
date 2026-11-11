@@ -20,6 +20,8 @@
 		"node_modules",
 		".vscode-test",
 		"extensions",
-		"logs"
+		"logs",
+		"tools",
+		"src/jobdesigner/webview/**"
 	]
 }

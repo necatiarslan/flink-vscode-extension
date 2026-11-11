@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "name": "per_minute_totals",
+  "source": {
+    "type": "filesystem",
+    "path": "/opt/flink/data/input",
+    "format": "json",
+    "watch": true,
+    "fields": [
+      { "name": "user", "type": "STRING" },
+      { "name": "amount", "type": "DOUBLE" },
+      { "name": "event_time", "type": "TIMESTAMP(3)" }
+    ],
+    "options": { "timestampFormat": "ISO-8601" },
+    "timeAttribute": {
+      "kind": "eventTime",
+      "column": "event_time",
+      "maxOutOfOrderness": { "value": 2, "unit": "SECOND" }
+    }
+  },
+  "steps": [
+    {
+      "type": "filter",
+      "mode": "all",
+      "conditions": [{ "column": "amount", "op": ">=", "value": 10 }]
+    },
+    {
+      "type": "windowAggregate",
+      "window": { "kind": "tumble", "size": { "value": 1, "unit": "MINUTE" } },
+      "groupBy": ["user"],
+      "aggregates": [
+        { "fn": "SUM", "column": "amount", "as": "total" },
+        { "fn": "COUNT", "as": "n" }
+      ],
+      "includeWindowStart": true,
+      "includeWindowEnd": false
+    }
+  ],
+  "sink": { "type": "print" },
+  "settings": { "idleTimeoutSeconds": 60 }
+}
