@@ -22,7 +22,7 @@ export class SqlResultsPanel {
             vscode.ViewColumn.One,
             {
                 enableScripts: false,
-                enableCommandUris: ['flink.openSqlJob'],
+                enableCommandUris: ['ApacheFlink.openSqlJob'],
                 localResourceRoots: []
             }
         );
@@ -132,7 +132,7 @@ function formatValue(value: unknown): string {
 }
 
 function jobCommandUri(profileId: string, jobId: string): string {
-    return `command:flink.openSqlJob?${encodeURIComponent(JSON.stringify([profileId, jobId]))}`;
+    return `command:ApacheFlink.openSqlJob?${encodeURIComponent(JSON.stringify([profileId, jobId]))}`;
 }
 
 function escapeHtml(value: string): string {

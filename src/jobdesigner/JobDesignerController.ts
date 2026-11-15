@@ -45,8 +45,8 @@ export class JobDesignerController {
     ) {
         context.subscriptions.push(
             this.output,
-            vscode.commands.registerCommand('flink.newJob', (node?: FlinkTreeNode) => this.newJob(node)),
-            vscode.commands.registerCommand('flink.openJobSpec', (uri?: vscode.Uri) => this.openJobSpec(uri))
+            vscode.commands.registerCommand('ApacheFlink.newJob', (node?: FlinkTreeNode) => this.newJob(node)),
+            vscode.commands.registerCommand('ApacheFlink.openJobSpec', (uri?: vscode.Uri) => this.openJobSpec(uri))
         );
     }
 
@@ -192,7 +192,7 @@ export class JobDesignerController {
                 await this.inferSample(panel);
                 return;
             case 'openJob':
-                await vscode.commands.executeCommand('flink.openSqlJob', profile.id, message.jobID);
+                await vscode.commands.executeCommand('ApacheFlink.openSqlJob', profile.id, message.jobID);
                 return;
         }
     }

@@ -23,9 +23,9 @@ export class SqlRunController {
     ) {
         context.subscriptions.push(
             this.output,
-            vscode.commands.registerCommand('flink.runSql', (editor?: vscode.TextEditor) => this.runSql(editor)),
+            vscode.commands.registerCommand('ApacheFlink.runSql', (editor?: vscode.TextEditor) => this.runSql(editor)),
             vscode.commands.registerCommand(
-                'flink.openSqlJob',
+                'ApacheFlink.openSqlJob',
                 (profileId: unknown, jobId: unknown) => this.openJob(profileId, jobId)
             )
         );

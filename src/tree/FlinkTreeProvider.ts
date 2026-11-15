@@ -99,11 +99,11 @@ export class FlinkTreeProvider implements vscode.TreeDataProvider<FlinkTreeNode>
             vscode.commands.registerCommand('ApacheFlink.OpenResource', (node: FlinkTreeNode) => this.openResource(node)),
             vscode.commands.registerCommand('ApacheFlink.RunOperation', (node: FlinkTreeNode) => this.runOperation(node)),
             vscode.commands.registerCommand(
-                '_ApacheFlink.CancelJob#sideBar',
+                'ApacheFlink.CancelJob#sideBar',
                 (node: FlinkTreeNode) => this.cancelJobFromNode(node)
             ),
             vscode.commands.registerCommand(
-                '_ApacheFlink.UploadJar#sideBar',
+                'ApacheFlink.UploadJar#sideBar',
                 (node: FlinkTreeNode) => this.uploadJarFromNode(node)
             )
         );

@@ -49,27 +49,27 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "_ApacheFlink.UploadJar#sideBar",
+        "command": "ApacheFlink.UploadJar#sideBar",
         "title": "Upload JAR",
         "icon": "$(add)"
       },
       {
-        "command": "_ApacheFlink.CancelJob#sideBar",
+        "command": "ApacheFlink.CancelJob#sideBar",
         "title": "Cancel Job",
         "icon": "$(debug-stop)"
       },
       {
-        "command": "flink.runSql",
+        "command": "ApacheFlink.runSql",
         "title": "Flink: Run SQL",
         "icon": "$(play)"
       },
       {
-        "command": "flink.newJob",
+        "command": "ApacheFlink.newJob",
         "title": "Flink: New Job",
         "icon": "$(add)"
       },
       {
-        "command": "flink.openJobSpec",
+        "command": "ApacheFlink.openJobSpec",
         "title": "Flink: Open Job Spec",
         "icon": "$(edit)"
       }
@@ -106,19 +106,19 @@
     "menus": {
       "editor/title": [
         {
-          "command": "flink.runSql",
+          "command": "ApacheFlink.runSql",
           "when": "resourceLangId == sql",
           "group": "navigation"
         },
         {
-          "command": "flink.openJobSpec",
+          "command": "ApacheFlink.openJobSpec",
           "when": "resourceFilename =~ /\\.flinkjob\\.json$/",
           "group": "navigation"
         }
       ],
       "editor/context": [
         {
-          "command": "flink.runSql",
+          "command": "ApacheFlink.runSql",
           "when": "resourceLangId == sql",
           "group": "navigation"
         }
@@ -137,22 +137,22 @@
       ],
       "view/item/context": [
         {
-          "command": "flink.newJob",
+          "command": "ApacheFlink.newJob",
           "when": "view == ApacheFlinkView && viewItem == flinkClusterWithSqlGateway",
           "group": "inline@2"
         },
         {
-          "command": "flink.newJob",
+          "command": "ApacheFlink.newJob",
           "when": "view == ApacheFlinkView && viewItem == flinkJobsWithSqlGateway",
           "group": "inline@2"
         },
         {
-          "command": "_ApacheFlink.UploadJar#sideBar",
+          "command": "ApacheFlink.UploadJar#sideBar",
           "when": "view == ApacheFlinkView && viewItem == flinkJarsWritable",
           "group": "inline@1"
         },
         {
-          "command": "_ApacheFlink.CancelJob#sideBar",
+          "command": "ApacheFlink.CancelJob#sideBar",
           "when": "view == ApacheFlinkView && viewItem == flinkJobRunningWritable",
           "group": "inline@1"
         },
